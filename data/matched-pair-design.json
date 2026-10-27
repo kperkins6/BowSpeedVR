@@ -1,0 +1,341 @@
+{
+  "draft": true,
+  "version": "matched-pair finite-inertia proposal",
+  "referenceSpeedGameUnits": 5000.0,
+  "virtualBowMass": 0.25,
+  "speedCeiling": 1.25,
+  "bowProfiles": {
+    "Long Bow": {
+      "Q": 1.2500000000000004,
+      "arrow": "Iron",
+      "drawSeconds": 0.85,
+      "role": "Quick, economical baseline"
+    },
+    "Hunting Bow": {
+      "Q": 1.387515943877551,
+      "arrow": "Steel",
+      "drawSeconds": 0.9,
+      "role": "Light hunting bow"
+    },
+    "Imperial Bow": {
+      "Q": 1.5322066326530615,
+      "arrow": "Imperial",
+      "drawSeconds": 1.0,
+      "role": "Balanced military bow"
+    },
+    "Ancient Nord Bow": {
+      "Q": 1.5322066326530615,
+      "arrow": "Ancient Nord",
+      "drawSeconds": 1.0,
+      "role": "Old service bow"
+    },
+    "Orcish Bow": {
+      "Q": 1.684072066326531,
+      "arrow": "Orcish",
+      "drawSeconds": 1.1,
+      "role": "Sturdy early heavy bow"
+    },
+    "Dwarven Bow": {
+      "Q": 1.8431122448979596,
+      "arrow": "Dwarven",
+      "drawSeconds": 1.2,
+      "role": "Efficient workhorse"
+    },
+    "Elven Bow": {
+      "Q": 2.0093271683673475,
+      "arrow": "Elven",
+      "drawSeconds": 1.1,
+      "role": "Smooth precision bow"
+    },
+    "Nordic Bow": {
+      "Q": 2.0093271683673475,
+      "arrow": "Nordic",
+      "drawSeconds": 1.15,
+      "role": "Robust middle-to-high tier"
+    },
+    "Glass Bow": {
+      "Q": 2.1827168367346945,
+      "arrow": "Glass",
+      "drawSeconds": 1.15,
+      "role": "Refined precision bow"
+    },
+    "Ebony Bow": {
+      "Q": 2.363281250000001,
+      "arrow": "Ebony",
+      "drawSeconds": 1.3,
+      "role": "Heavy hunting bow"
+    },
+    "Stalhrim Bow": {
+      "Q": 2.363281250000001,
+      "arrow": "Stalhrim",
+      "drawSeconds": 1.35,
+      "role": "Heavy cold-enchantment platform"
+    },
+    "Daedric Bow": {
+      "Q": 2.5510204081632653,
+      "arrow": "Daedric",
+      "drawSeconds": 1.4,
+      "role": "Upper ordinary energy anchor"
+    },
+    "War Bow": {
+      "Q": 1.9755102040816332,
+      "arrow": "War",
+      "drawSeconds": 1.2,
+      "role": "Dedicated heavy war-arrow pairing"
+    },
+    "Dragonbone Bow": {
+      "Q": 2.5510204081632653,
+      "arrow": "Dragonbone",
+      "drawSeconds": 1.4,
+      "role": "Shares Daedric energy ceiling; stronger existing ammo damage/durability"
+    },
+    "Nord Hero / Supple Nord": {
+      "Q": 1.684072066326531,
+      "arrow": "Nord Hero",
+      "drawSeconds": 1.05,
+      "role": "Restored or stronger Nord chassis"
+    },
+    "Forsworn Bow": {
+      "Q": 1.3,
+      "arrow": "Forsworn",
+      "drawSeconds": 0.95,
+      "role": "Close-range hunter; weak shafts limit upgrades"
+    },
+    "Falmer Bow": {
+      "Q": 1.35,
+      "arrow": "Falmer",
+      "drawSeconds": 1.05,
+      "role": "Practical low-tier bow"
+    },
+    "Falmer Supple Bow": {
+      "Q": 2.0093271683673475,
+      "arrow": "Elven",
+      "drawSeconds": 1.2,
+      "role": "Stronger Falmer chassis"
+    },
+    "Bound Bow": {
+      "Q": 1.05,
+      "arrow": "Bound",
+      "drawSeconds": 0.9,
+      "role": "Magic exception: light, quick, low physical momentum"
+    },
+    "Zephyr": {
+      "Q": 1.8431122448979596,
+      "arrow": "Dwarven",
+      "drawSeconds": 0.8,
+      "role": "Rapid-fire artifact; preserve its existing special effects"
+    },
+    "Auriel's Bow": {
+      "Q": 2.0093271683673475,
+      "arrow": "Elven",
+      "drawSeconds": 0.85,
+      "role": "Fast artifact; preserve sun-arrow interactions"
+    },
+    "Nightingale / Karliah": {
+      "Q": 2.5510204081632653,
+      "arrow": "Daedric",
+      "drawSeconds": 1.25,
+      "role": "High power with artifact draw handling"
+    },
+    "Bow of Shadows": {
+      "Q": 2.363281250000001,
+      "arrow": "Ebony",
+      "drawSeconds": 0.95,
+      "role": "High power, quick artifact"
+    },
+    "Ancient Tongues": {
+      "Q": 2.45,
+      "arrow": "Daedric",
+      "drawSeconds": 1.35,
+      "role": "Heavy relic just below the upper energy anchor"
+    },
+    "Ancient Falmer / Snowfall": {
+      "Q": 2.0093271683673475,
+      "arrow": "Elven",
+      "drawSeconds": 1.05,
+      "role": "Refined Falmer/Elven construction"
+    },
+    "Akaviri Composite": {
+      "Q": 2.0093271683673475,
+      "arrow": "Elven",
+      "drawSeconds": 1.05,
+      "role": "Compact efficient precision bow"
+    },
+    "Bow of Betrothal": {
+      "Q": 2.0093271683673475,
+      "arrow": "Elven",
+      "drawSeconds": 0.95,
+      "role": "Fast crafted quest bow"
+    },
+    "Nord Long Bow": {
+      "Q": 1.684072066326531,
+      "arrow": "Nord Hero",
+      "drawSeconds": 1.05,
+      "role": "Stronger wooden longbow"
+    },
+    "Swirling Bow": {
+      "Q": 1.5322066326530615,
+      "arrow": "Imperial",
+      "drawSeconds": 0.9,
+      "role": "Quick modest-energy bow"
+    },
+    "Patient Hunter": {
+      "Q": 2.0093271683673475,
+      "arrow": "Nordic",
+      "drawSeconds": 1.5,
+      "role": "Deliberate precision bow"
+    },
+    "Falkreath / Hunt-Mother": {
+      "Q": 1.684072066326531,
+      "arrow": "Nord Hero",
+      "drawSeconds": 1.05,
+      "role": "Honed Nord hunting bow"
+    },
+    "Bourlor": {
+      "Q": 1.8431122448979596,
+      "arrow": "Dwarven",
+      "drawSeconds": 0.75,
+      "role": "Special rapid-fire behavior retained"
+    },
+    "Evil Eye": {
+      "Q": 2.363281250000001,
+      "arrow": "Ebony",
+      "drawSeconds": 1.1,
+      "role": "Preserve scripted penetration effects"
+    },
+    "Greatbow": {
+      "Q": 2.5510204081632653,
+      "arrow": "Greatarrow",
+      "drawSeconds": 1.7,
+      "role": "Optional special profile; slow draw, very heavy arrows"
+    }
+  },
+  "arrowProfiles": {
+    "Iron": {
+      "mass": 1.0,
+      "capacityQ": 1.8,
+      "dragArea": 1.0,
+      "existingStandardDurability": 25
+    },
+    "Steel": {
+      "mass": 1.137515943877551,
+      "capacityQ": 2.05,
+      "dragArea": 1.0,
+      "existingStandardDurability": 30
+    },
+    "Imperial": {
+      "mass": 1.2822066326530615,
+      "capacityQ": 2.2,
+      "dragArea": 1.0,
+      "existingStandardDurability": null
+    },
+    "Ancient Nord": {
+      "mass": 1.2822066326530615,
+      "capacityQ": 1.8,
+      "dragArea": 1.1,
+      "existingStandardDurability": 20
+    },
+    "Nord Hero": {
+      "mass": 1.434072066326531,
+      "capacityQ": 2.35,
+      "dragArea": 1.0,
+      "existingStandardDurability": 40
+    },
+    "Orcish": {
+      "mass": 1.434072066326531,
+      "capacityQ": 2.35,
+      "dragArea": 1.1,
+      "existingStandardDurability": 40
+    },
+    "Dwarven": {
+      "mass": 1.5931122448979596,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 1.15,
+      "existingStandardDurability": 50
+    },
+    "Elven": {
+      "mass": 1.7593271683673475,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 0.85,
+      "existingStandardDurability": 60
+    },
+    "Glass": {
+      "mass": 1.9327168367346945,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 0.9,
+      "existingStandardDurability": 70
+    },
+    "Nordic": {
+      "mass": 1.7593271683673475,
+      "capacityQ": 2.35,
+      "dragArea": 1.0,
+      "existingStandardDurability": 50
+    },
+    "Ebony": {
+      "mass": 2.113281250000001,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 0.95,
+      "existingStandardDurability": 80
+    },
+    "Stalhrim": {
+      "mass": 2.113281250000001,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 1.0,
+      "existingStandardDurability": 80
+    },
+    "Daedric": {
+      "mass": 2.3010204081632653,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 0.9,
+      "existingStandardDurability": 90
+    },
+    "Dragonbone": {
+      "mass": 2.3010204081632653,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 1.1,
+      "existingStandardDurability": 100
+    },
+    "Forsworn": {
+      "mass": 1.05,
+      "capacityQ": 1.6,
+      "dragArea": 1.2,
+      "existingStandardDurability": 20
+    },
+    "Falmer": {
+      "mass": 1.1,
+      "capacityQ": 1.65,
+      "dragArea": 1.15,
+      "existingStandardDurability": 20
+    },
+    "Stone": {
+      "mass": 1.1,
+      "capacityQ": 1.3,
+      "dragArea": 1.3,
+      "existingStandardDurability": null
+    },
+    "War": {
+      "mass": 1.7255102040816332,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 1.1,
+      "existingStandardDurability": null
+    },
+    "Bound": {
+      "mass": 0.55,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 0.3,
+      "existingStandardDurability": null
+    },
+    "Greatarrow": {
+      "mass": 3.0,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 1.6,
+      "existingStandardDurability": null
+    },
+    "Log": {
+      "mass": 4.0,
+      "capacityQ": 2.5510204081632653,
+      "dragArea": 2.0,
+      "existingStandardDurability": null
+    }
+  }
+}

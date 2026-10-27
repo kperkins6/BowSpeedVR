@@ -1,0 +1,20 @@
+{
+  "master": "Skyrim.esm",
+  "bow": "0x03B562",
+  "arrow": "0x01397D",
+  "projectile": "0x3be11",
+  "projectileSpeed": 3600.0,
+  "bowSpeedRating": 1.0,
+  "nativeWeaponFactor": 0.7,
+  "fullDrawSpeed": 2520.0,
+  "baseGravity": 0.3499999940395355,
+  "drawFactor": 1,
+  "runtimeFactor": 1,
+  "helperRVA": "0x3CE950",
+  "helperConstants": {
+    "minRating": 0.5,
+    "maxRating": 1,
+    "minFactor": 0.7,
+    "maxFactor": 1
+  }
+}
