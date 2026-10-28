@@ -11,7 +11,12 @@
 namespace {
 std::string ReadFile(const std::filesystem::path& path) {
     std::ifstream file(path);
-    return {std::istreambuf_iterator<char>(file),std::istreambuf_iterator<char>()};
+    if (!file) return {};
+    std::string text(4*1024*1024+1,'\0');
+    file.read(text.data(),static_cast<std::streamsize>(text.size()));
+    text.resize(static_cast<std::size_t>(file.gcount()));
+    if (text.size()>4*1024*1024) {spdlog::error("Configuration exceeds 4 MiB: {}",path.string());return {};}
+    return text;
 }
 void DataLoaded(SKSE::MessagingInterface::Message* message) {
     if (message->type==SKSE::MessagingInterface::kPreLoadGame || message->type==SKSE::MessagingInterface::kNewGame) BowSpeed::ClearMatchedSnapshots();

@@ -34,9 +34,9 @@
 
 **Interfaces:** ParseUserConfig(string_view) -> UserConfig (valid/errors plus typed Config and binding maps); ApplyUserConfig(Config, UserConfig) -> Config; ResolvePhysicsCatalog(Config) -> owned bow/arrow maps of canonical FormKey to physics values/exclusion. New Config catalogue maps are independent of installed form pointers. MatchedSettings gains impactStrength=1.0. Existing registrations remain when no overlay exists.
 
-- [ ] Write failing tests: arbitrary NewBow.esp|0x800 registers power 1.5; new ammo mass 2/capacity 2 registers; an invalid number rejects the whole overlay; exclusion suppresses pairing and weight; legacy no-overlay defaults match. Impact strength 0.5 scales the bounded response, strength 1 preserves old values.
-- [ ] Run new test target and observe missing behavior; implement strict schema 1 overlay and shared catalogue selection, then runtime type/projectile checks.
-- [ ] Run all CTest groups; commit runtime support.
+- [x] Write failing tests: arbitrary NewBow.esp|0x800 registers power 1.5; new ammo mass 2/capacity 2 registers; an invalid number rejects the whole overlay; exclusion suppresses pairing and weight; legacy no-overlay defaults match. Impact strength 0.5 scales the bounded response, strength 1 preserves old values.
+- [x] Run new test target and observe missing behavior; implement strict schema 1 overlay and shared catalogue selection, then runtime type/projectile checks.
+- [x] Run all CTest groups; commit runtime support.
 
 ### Task 2: Active-session plugin scanner
 
@@ -44,9 +44,9 @@
 
 **Interfaces:** ScanPlugins(dataDir, pluginsFile, optional orderFile) -> ScanResult containing equipment records, diagnostics, complete flag and fingerprint; DetectSession(gameDir, optional profileDir) -> explicit source paths. ScanResult items retain kind, key, winning file, template, projectile and native data; generated fixture helpers remain test-only.
 
-- [ ] Write generated binary fixtures and failing checks for active-only equipment, override identity/winner, deleted forms, template cycle, master order errors, FE/light mapping, XXXX/compressed data, invalid lengths and missing projected lists.
-- [ ] Implement streaming/bounded plugin parsing, canonical references, resolution and ordinary-equipment classification. Vendor pinned puff only for raw DEFLATE inside validated zlib records.
-- [ ] Run scanner tests and an explicit-profile read-only MGO scan; retain scan evidence outside source. Commit scanner.
+- [x] Write generated binary fixtures and failing checks for active-only equipment, override identity/winner, deleted forms, template cycle, master order errors, FE/light mapping, XXXX/compressed data, invalid lengths and missing projected lists.
+- [x] Implement streaming/bounded plugin parsing, canonical references, resolution and ordinary-equipment classification. Vendor pinned puff only for raw DEFLATE inside validated zlib records.
+- [x] Run scanner tests and an explicit-profile read-only MGO scan; retain scan evidence outside source. Commit scanner.
 
 ### Task 3: Editor model, presets, preview and export
 
@@ -54,10 +54,10 @@
 
 **Interfaces:** EditorModel(ScanResult, base Config); ApplyPreset(UserConfig), ImportOverlay(UserConfig), Edit item settings, Preview(bowKey, ammoKey, draw) -> shared MatchedShot; SerializeOverlay() -> text; ExportSettings(model, destination, ZIP/directory) -> file list and diagnostics.
 
-- [ ] Write failing round-trip tests for unknown-item opt-in, exclusions, preset resolution without MGO, exact Long/Iron 5000 preview, partial draw, cap indication, bounded impact, wrong runtime warning and source preservation.
-- [ ] Implement stock defaults plus template inheritance; special items stay excluded. Move MGO bindings to a supplied data preset while retaining the old INI compatibility path.
-- [ ] Implement full overlay import/export and installable ZIP; directory export only to an explicitly selected physical settings-mod path, backups and atomic file replacement; no deletion of other files.
-- [ ] Run model/export/whole CTest suite; commit.
+- [x] Write failing round-trip tests for unknown-item opt-in, exclusions, preset resolution without MGO, exact Long/Iron 5000 preview, partial draw, cap indication, bounded impact, wrong runtime warning and source preservation.
+- [x] Implement stock defaults plus template inheritance; special items stay excluded. Move MGO bindings to a supplied data preset while retaining the old INI compatibility path.
+- [x] Implement full overlay import/export and installable ZIP; directory export only to an explicitly selected physical settings-mod path, backups and atomic file replacement; no deletion of other files.
+- [x] Run model/export/whole CTest suite; commit.
 
 ### Task 4: Desktop interface and diagnostic CLI
 
@@ -65,9 +65,9 @@
 
 **Interfaces:** BowSpeedVREditor.exe [--game-dir PATH] [--profile-dir PATH] [--output PATH] [--scan-report PATH]; CLI scan-report exits nonzero for incomplete scans and never edits game data. GUI uses the same model/export code.
 
-- [ ] Add CLI integration tests with a temporary real fixture tree: enabled-only report, unsupported runtime, missing list, stable overlay round trip, export ZIP consumable by runtime parser.
-- [ ] Build native desktop interface with game/profile selection, scan/rescan, filterable equipment tables, profile assignment and numeric editing, globals, bow/arrow/draw preview, import, explicit MGO preset and settings export. Report projected-list source and runtime-version compatibility; disable apply/export for blocking scan errors.
-- [ ] Exercise built executable CLI and inspect GUI through available computer-use tooling; commit.
+- [x] Add CLI integration tests with a temporary real fixture tree: enabled-only report, unsupported runtime, missing list, stable overlay round trip, export ZIP consumable by runtime parser.
+- [x] Build native desktop interface with game/profile selection, scan/rescan, filterable equipment tables, profile assignment and numeric editing, globals, bow/arrow/draw preview, import, explicit MGO preset and settings export. Report projected-list source and runtime-version compatibility; disable apply/export for blocking scan errors.
+- [x] Exercise built executable CLI and inspect GUI through available computer-use tooling; commit.
 
 ### Task 5: Packaging, documentation and whole-branch review
 

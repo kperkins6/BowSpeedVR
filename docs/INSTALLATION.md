@@ -2,6 +2,8 @@
 
 Requires Skyrim VR 1.4.15, SKSEVR 2.0.12 and VR Address Library for SKSEVR on Windows x64. Archery, Ricochet and Mad God's Overhaul are optional for Standalone.
 
+For the desktop workflow, install the matching Runtime ZIP and follow the [editor guide](EDITOR.md). Runtime 1.1.0 reads `BowSpeedVR.user.ini` after the base INI. This separate user overlay can register equipment from other mods; it is distinct from the legacy per-form override sections below. A complete editor overlay suppresses legacy bow/ammo modifiers to prevent stacking. Invalid overlays are rejected as a whole.
+
 ## Standalone
 
 Install `BowSpeedVR-1.0.0-Standalone.zip` with MO2 or Vortex. Its installer offers arrow inventory weight, default OFF. Enable one BowSpeedVR DLL and launch through SKSEVR. Replace a duplicate BowSpeedVR installation rather than enabling two copies.
@@ -30,7 +32,7 @@ Ricochet's DLL presence and global speed setting are read at startup for compens
 
 ## Global and per-item settings
 
-Edit the winning `SKSE/Plugins/BowSpeedVR.ini` and restart. There is no in-game MCM.
+Use the desktop editor, or edit the winning `SKSE/Plugins/BowSpeedVR.ini` and restart. There is no in-game MCM. Desktop user overlays take precedence over the base settings they specify.
 
 ```ini
 [Pairing]

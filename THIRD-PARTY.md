@@ -1,5 +1,9 @@
 # Dependency provenance
 
+- puff 2.3 from zlib v1.3.1, Mark Adler,
+  https://github.com/madler/zlib/tree/v1.3.1/contrib/puff — zlib license.
+  Unmodified decoder sources and notices are in `editor/vendor/`.
+
 - CommonLibSSE-NG v10.1.0, commit 39f9d07a6ffabea8fb559eee87ab7d27cd463e8a,
   https://github.com/alandtse/CommonLibSSE-NG — GPL-3.0-or-later.
 - OpenVR SDK 1.0.15, commit 60eb187801956ad277f1cae6680e3a410ee0873b,

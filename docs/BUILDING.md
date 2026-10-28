@@ -1,5 +1,15 @@
 # Build the release
 
+## Desktop editor
+
+The editor builds with Windows x64 MSVC/CMake and no CommonLib, vcpkg, Python or UI framework dependency. Run `scripts/build-editor.ps1`. It builds the editor and native tests in `build-editor`; its executable links the C++ runtime statically. The editor and SKSEVR plugin compile the same physics sources.
+
+For an existing configured plugin build, run `cmake --build build-release` to produce both. Run `python tests/test_editor_cli.py build-release/BowSpeedVREditor.exe` and `python tests/test_editor_package.py` after building the matching DLL. Package them with `python scripts/package-editor.py --build-dir build-release --output <directory>`; this validates actual executable/DLL versions and emits separate Editor and Runtime ZIPs plus hashes. It does not publish or install them.
+
+The optional MGO preset is a data file in `presets/`, copied alongside a built editor. Regeneration instructions are in `presets/README.md`. The scanner's unmodified puff decoder and zlib license are vendored in `editor/vendor/`.
+
+## SKSEVR runtime and source
+
 Use Windows x64 MSVC C++23, CMake3.25+ and Ninja. CommonLibSSE-NG is pinned to39f9d07a6ffabea8fb559eee87ab7d27cd463e8a with OpenVR60eb187801956ad277f1cae6680e3a410ee0873b. Other versions and licenses are listed in THIRD-PARTY.md and the included dependency source manifest.
 
 Run scripts/test.ps1 for the portable suite. Run scripts/build.ps1 with CommonLib, Vcpkg and Dependencies paths to compile the plugin and Release tests. Use CMAKE_TRY_COMPILE_CONFIGURATION=Release when a host's Debug PDB server differs from its compiler. Cached builds may use VCPKG_MANIFEST_INSTALL=OFF only after the pinned dependencies are installed.

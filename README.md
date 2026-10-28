@@ -6,13 +6,23 @@ BowSpeedVR changes launch speed and physical impact for supported player bow sho
 
 ## Downloads
 
-Get the ZIPs from the [1.0 release](https://github.com/kperkins6/BowSpeedVR/releases/tag/v1.0.0):
+Get published ZIPs from [GitHub Releases](https://github.com/kperkins6/BowSpeedVR/releases). The desktop editor and matching runtime can also be built using [the build guide](docs/BUILDING.md).
 
 | Download | Use |
 |---|---|
 | **Standalone** | Main SKSEVR plugin and installer. Works without Archery, Ricochet or Mad God's Overhaul. |
 | **MGO FOMOD** | Optional configuration patch for Mad God's Overhaul. Requires Standalone; offers independent NPC and player speed choices. |
 | **Source** | Buildable source with matching dependency snapshots and license notices. |
+
+The desktop packages are separate: **Editor** is an offline Windows application; **Runtime** is its matching SKSEVR plugin. Editor settings require runtime **1.1.0 or newer**. Older published DLLs cannot read its user overlay.
+
+## Desktop editor
+
+Add `BowSpeedVREditor.exe` to MO2's executable list and set **Start in** to your Skyrim VR directory. Launch it from the profile you want to tune: it scans enabled plugins, resolves winning overrides and weapon templates, and discovers bows and arrows from your list. MGO is an explicitly optional preset.
+
+Assign archetypes or edit bow energy, arrow mass and shaft capacity, preview combinations and partial draws, and adjust player/NPC speed, physical impact and optional inventory weight. Unknown equipment stays unchanged until assigned. Export a separate settings mod, enable it in the same MO2 profile, and restart Skyrim VR. Source ESPs and other mods' configurations are not edited.
+
+See the [desktop editor guide](docs/EDITOR.md) for installation, controls and compatibility limits. The editor needs no Python, .NET, separate UI runtime or Internet access.
 
 ## Requirements
 
@@ -30,7 +40,7 @@ This plugin supports Skyrim VR, including ordinary vanilla and DLC bows and arro
 
 For MGO, also install the **MGO FOMOD ZIP** as a separate mod after Standalone. Let the patch's `SKSE/Plugins/BowSpeedVR.ini` win the file conflict. Choose NPC speed, player speed and inventory weight independently. NPC and player speed default to **1.0×**. **NPC 0.8× + player 1.0×** gives more time to dodge enemy arrows while retaining the default player model.
 
-See the [installation and configuration guide](docs/INSTALLATION.md) for manual installation, settings and troubleshooting. There is no MCM; edit the INI and restart to change settings.
+See the [installation and configuration guide](docs/INSTALLATION.md) for manual settings and troubleshooting. There is no MCM; use the desktop editor or edit the INI, then restart to change settings.
 
 ## How the physics works
 

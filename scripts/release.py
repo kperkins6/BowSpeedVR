@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-VERSION='1.0.0'
+VERSION='1.1.0'
 NPCS=[('0.8','Slower enemies — 0.8×'),('0.9','Slightly slower enemies — 0.9×'),('1.0','Default — 1.0×')]
 PLAYERS=[('slow','Slower — 0.8×',.8,'Tuned'),('gentle','Slightly slower — 0.9×',.9,'Tuned'),
          ('fast','Slightly faster — 1.1×',1.1,'Tuned'),('faster','Faster — 1.2×',1.2,'Tuned'),
@@ -209,9 +209,9 @@ def build_source_archive(root,output,dependencies):
     entries=[]
     for name in ['CMakeLists.txt','vcpkg.json','LICENSE','EXCEPTIONS.md','THIRD-PARTY.md','README.md',
                  'data/bow-records.csv','data/ammo-records.csv','data/matched-pair-design.json',
-                 'docs/INSTALLATION.md','docs/TESTING.md','docs/BUILDING.md','docs/vanilla-calibration.json']:
+                 'docs/INSTALLATION.md','docs/TESTING.md','docs/BUILDING.md','docs/EDITOR.md','docs/vanilla-calibration.json','.clang-format']:
         entries.append(('BowSpeedVR/'+name,(root/name).read_bytes()))
-    for folder in ['include','src','tests','scripts','config','licenses','dist']:
+    for folder in ['include','src','tests','scripts','config','licenses','dist','editor','presets']:
         for path in (root/folder).rglob('*'):
             if path.is_file() and '__pycache__' not in path.parts and path.suffix!='.pyc':
                 entries.append(('BowSpeedVR/'+path.relative_to(root).as_posix(),path.read_bytes()))

@@ -43,6 +43,7 @@ struct Config {
     std::map<FormKey,double> registeredBows;
     std::map<FormKey,RegisteredArrow> registeredArrows;
     std::set<FormKey> excludedForms;
+    bool replaceCatalog=false;
 };
 Config ParseConfig(std::string_view ini);
 std::map<FormKey, AmmoClass> DefaultAmmoClasses();
