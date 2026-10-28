@@ -10,17 +10,17 @@ Get published ZIPs from [GitHub Releases](https://github.com/kperkins6/BowSpeedV
 
 | Download | Use |
 |---|---|
-| **Standalone** | Main SKSEVR plugin and installer. Works without Archery, Ricochet or Mad God's Overhaul. |
-| **MGO FOMOD** | Optional configuration patch for Mad God's Overhaul. Requires Standalone; offers independent NPC and player speed choices. |
-| **Source** | Buildable source with matching dependency snapshots and license notices. |
+| **Runtime** | Main SKSEVR plugin and default INI. Works without Archery, Ricochet or Mad God's Overhaul. |
+| **Editor** | Offline Windows application, optional MGO preset and editor guide. Launch through MO2 to tune the active profile. |
+| **Source** | Repository/source archives; see the build guide for pinned dependencies and license notices. |
 
-The desktop packages are separate: **Editor** is an offline Windows application; **Runtime** is its matching SKSEVR plugin. Editor settings require runtime **1.1.0 or newer**. Older published DLLs cannot read its user overlay.
+The desktop packages are separate: **Editor** is an offline Windows application; **Runtime** is its matching SKSEVR plugin. Editor settings require runtime **1.1.0 or newer**.
 
 ## Desktop editor
 
 Add `BowSpeedVREditor.exe` to MO2's executable list and set **Start in** to your Skyrim VR directory. Launch it from the profile you want to tune: it scans enabled plugins, resolves winning overrides and weapon templates, and discovers bows and arrows from your list. MGO is an explicitly optional preset.
 
-Assign archetypes or edit bow energy, arrow mass and shaft capacity, preview combinations and partial draws, and adjust player/NPC speed, physical impact and optional inventory weight. Unknown equipment stays unchanged until assigned. Export a separate settings mod, enable it in the same MO2 profile, and restart Skyrim VR. Source ESPs and other mods' configurations are not edited.
+Assign archetypes or edit bow energy, arrow mass and shaft capacity, preview combinations and partial draws, and adjust player/NPC speed, physical impact and optional inventory weight. Unfamiliar ordinary equipment receives enabled, editable defaults from known templates, unambiguous material matches or bounded damage curves fitted to the active list. Inferred values are clearly labeled with their method and confidence; known profiles and reviewed safety exclusions are preserved. Export a separate settings mod, enable it in the same MO2 profile, and restart Skyrim VR. Source ESPs and other mods' configurations are not edited.
 
 See the [desktop editor guide](docs/EDITOR.md) for installation, controls and compatibility limits. The editor needs no Python, .NET, separate UI runtime or Internet access.
 
@@ -29,16 +29,19 @@ See the [desktop editor guide](docs/EDITOR.md) for installation, controls and co
 - Skyrim VR **1.4.15** on Windows x64.
 - **SKSEVR 2.0.12**.
 - **VR Address Library for SKSEVR**.
+- Microsoft Visual C++ x64 runtime for the SKSE plugin. The desktop editor includes its own C++ runtime.
 
 This plugin supports Skyrim VR, including ordinary vanilla and DLC bows and arrows. Desktop Skyrim SE/AE is unsupported.
 
 ## Install
 
-1. Install the **Standalone ZIP** through Mod Organizer 2 or Vortex.
-2. Choose whether to enable arrow inventory weight. It defaults **OFF**.
-3. Enable the mod and launch Skyrim VR through SKSEVR.
+1. Install **BowSpeedVR-1.1.1-Runtime.zip** through Mod Organizer 2 or Vortex. Enable only one BowSpeedVR DLL.
+2. Extract **BowSpeedVR-1.1.1-Editor.zip** to a tools directory, retaining its `presets` folder.
+3. Add `BowSpeedVREditor.exe` to MO2 with **Start in** set to the Skyrim VR directory, then run it through the profile you want to tune.
+4. Review the profiles and inferred defaults. Export a settings ZIP, install and enable it in that profile, and let `BowSpeedVR.user.ini` win conflicts.
+5. Close the editor and launch Skyrim VR through SKSEVR. Restart the game after changing settings.
 
-For MGO, also install the **MGO FOMOD ZIP** as a separate mod after Standalone. Let the patch's `SKSE/Plugins/BowSpeedVR.ini` win the file conflict. Choose NPC speed, player speed and inventory weight independently. NPC and player speed default to **1.0×**. **NPC 0.8× + player 1.0×** gives more time to dodge enemy arrows while retaining the default player model.
+For MGO, the editor includes an optional **MGO preset**. Player and NPC speed can be adjusted independently; NPC speed tuning and inventory weight are opt-in. With Ricochet compensation configured, **NPC 0.8× + player 1.0×** gives more time to dodge enemy arrows while retaining the default player model. Loading a preset replaces draft settings, so save settings you want to keep first.
 
 See the [installation and configuration guide](docs/INSTALLATION.md) for manual settings and troubleshooting. There is no MCM; use the desktop editor or edit the INI, then restart to change settings.
 
@@ -82,7 +85,7 @@ Per-bow energy and per-arrow mass/capacity overrides use plugin names and local 
 
 ## Optional arrow inventory weight
 
-Both installers can give supported arrows inventory and carrying weight using **physics mass × 0.10**. The MGO installer supplies a complete INI, so select the weight option there when using the patch.
+Enable arrow inventory weight in the editor or INI to give supported arrows inventory and carrying weight using **physics mass × 0.10**. It defaults **OFF**.
 
 | Arrow | Weight each | Weight of 100 |
 |---|---:|---:|
@@ -98,10 +101,11 @@ The option has automated native-hook coverage. VR menu display, encumbrance and 
 
 ## Compatibility and scope
 
-- Standalone leaves NPC and crossbow flight unchanged. The MGO patch can tune ordinary NPC bow arrows separately.
-- The MGO patch compensates for Ricochet's configured global speed without rewriting Ricochet's INI. Its NPC multipliers refer to the installed bow/arrow speed before that global modifier. Restart after changing Ricochet speed.
-- Unknown equipment skips the energy/mass pairing model. Ordinary fallback bow shots can still receive selected player/NPC speed multipliers, Ricochet compensation and eligible legacy ammo adjustments. Helper/copy projectiles and unsupported special effects are excluded.
-- Imperial, Ancient Falmer and Elvenia arrows in the expanded MGO catalogue use that fallback path because their gravity differs. Their known inventory masses remain available.
+- Runtime defaults leave NPC and crossbow flight unchanged. Ordinary NPC bow-arrow speed can be enabled separately.
+- Optional compensation accounts for Ricochet's configured global speed without rewriting its INI. NPC multipliers refer to installed bow/arrow speed before that global modifier. Restart after changing Ricochet speed.
+- The editor estimates unfamiliar ordinary equipment; unusable evidence, reviewed helpers/traps, scripted equipment and unsupported special effects stay excluded. Damage-derived estimates are labeled low confidence and remain adjustable.
+- A complete editor overlay keeps unassigned/excluded player shots native and suppresses legacy bow/ammo modifiers. Additive overlays retain the existing catalogue and legacy fallback policy. Without an overlay, ordinary fallback shots can still receive configured legacy adjustments.
+- Imperial, Ancient Falmer and Elvenia arrows with reviewed gravity exceptions retain native flight. Their known inventory masses remain available where enrolled.
 - Native runtime and ownership checks refuse unsupported or conflicting hook paths. Check `BowSpeedVR.log` if a feature does not activate.
 - No ESP, Papyrus script, controller binding or third-party DLL is installed.
 
