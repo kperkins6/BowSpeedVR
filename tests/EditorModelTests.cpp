@@ -60,6 +60,8 @@ int main() {
         stale.fingerprint = "old-list";
         model.Import(stale);
         Check(model.needsReview, "Changed active scan requires explicit review");
+        model.Import(ParseUserConfig("[UserConfig]\nSchemaVersion=1\n[Pairing]\nImpactStrength=0.5\n"));
+        Check(model.needsReview, "A partial import cannot erase outstanding stale-scan review");
         auto root = std::filesystem::temp_directory_path() /
                     std::filesystem::path(
                         "bowspeed-export-" +

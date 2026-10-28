@@ -5,6 +5,7 @@
 #include "BowSpeed/DiagnosticGate.h"
 #include "BowSpeed/ImpactHook.h"
 #include "BowSpeed/MatchedPhysics.h"
+#include "BowSpeed/ProjectilePolicy.h"
 #include "BowSpeed/PairingNativeGuard.h"
 #include "BowSpeed/Tuning.h"
 #include <chrono>
@@ -163,7 +164,8 @@ std::optional<float> PairingFactor(const RE::Projectile* projectile,bool player,
     const bool gravity=knownArrow && arrowIt->second.gravityException;
     const bool physical=base && ammo && !ammo->IsBolt() && !runtime.spell &&
         base==ammo->GetRuntimeData().data.projectile && base->data.types.all(RE::BGSProjectileData::Type::kArrow);
-    const bool ordinary=base && std::isfinite(base->data.force) && base->data.force>0 && base->data.force<=4;
+    const bool ordinary=base && OrdinaryArrowPhysics(base->data.types.underlying(),base->data.flags.underlying(),
+        base->data.gravity,base->data.speed,base->data.force);
     if (!PairingPermitted({settings.pairingEnabled,settings.observeOnly,trusted,trusted,handlesTrusted,player,bow,knownBow,knownArrow,gravity,ordinary,physical})) {
         if (player && bow && (!knownBow || !knownArrow)) PairingFallback(1,"unknown/unreviewed bow or arrow; legacy behavior");
         else if (player && gravity) PairingFallback(2,"gravity exception; legacy behavior");
@@ -221,8 +223,9 @@ float GetWeaponFactor(const RE::Projectile* projectile) {
     const auto* base=object ? object->As<RE::BGSProjectile>() : nullptr;
     const bool physical=base && shot.ammoSource && !shot.ammoSource->IsBolt() && !shot.spell &&
         base==shot.ammoSource->GetRuntimeData().data.projectile && base->data.types.all(RE::BGSProjectileData::Type::kArrow);
-    const bool ordinary=base && std::isfinite(base->data.force) && base->data.force>0 && base->data.force<=4;
-    const BowTuningEligibility tuning{allow,settings.observeOnly,shooter && shooter->As<RE::Actor>(),bow,physical,ordinary,player};
+    const bool ordinary=base && OrdinaryArrowPhysics(base->data.types.underlying(),base->data.flags.underlying(),
+        base->data.gravity,base->data.speed,base->data.force);
+    const BowTuningEligibility tuning{allow,settings.observeOnly,shooter && shooter->As<RE::Actor>(),bow,physical,ordinary,player,settings.replaceCatalog};
     const float fallback=bow ? SelectUnpairedBowFactor(tuning,game,selected,settings.pairedPlayerSpeedMult,
         settings.npcSpeedMult,mountedRicochetSpeed,settings.npcSpeedEnabled,settings.compensateRicochet) : selected;
     const float returned=allow ? paired.value_or(fallback) : game;

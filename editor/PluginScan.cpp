@@ -1,4 +1,5 @@
 #include "PluginScan.h"
+#include "BowSpeed/ProjectilePolicy.h"
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -345,23 +346,42 @@ ScanResult ScanPlugins(const std::filesystem::path &dataDir, const std::filesyst
                 ordered.push_back(name);
                 enabled.insert(Lower(name));
             }
-        if (!orderFile.empty() && std::filesystem::exists(orderFile)) {
-            std::istringstream order(ReadText(orderFile));
-            while (std::getline(order, line)) {
-                line = Trim(line);
-                if (line.empty() || line[0] == '#')
-                    continue;
-                if (enabled.contains(Lower(line)) &&
-                    std::none_of(ordered.begin(), ordered.end(),
-                                 [&](const auto &n) { return Lower(n) == Lower(line); }))
-                    ordered.push_back(line);
-            }
-        }
         for (const auto &name : out.plugins)
             if (std::none_of(ordered.begin(), ordered.end(),
                              [&](const auto &n) { return Lower(n) == Lower(name); }))
                 ordered.push_back(name);
         out.plugins = ordered;
+        // Starred plugins supply non-core order. Official masters have fixed
+        // engine order. Companion data may omit those implicit masters, but
+        // must agree on and cover every other active plugin.
+        if (!orderFile.empty() && std::filesystem::exists(orderFile)) {
+            std::istringstream order(ReadText(orderFile));
+            std::set<std::string> seen;
+            std::vector<std::string> companion;
+            while (std::getline(order, line)) {
+                line = Trim(line);
+                if (line.empty() || line[0] == '#')
+                    continue;
+                if (!ParseFormKey(line + "|0x1"))
+                    throw std::runtime_error("Invalid companion ordering entry");
+                auto name = Lower(line);
+                if (!seen.insert(name).second)
+                    throw std::runtime_error("Duplicate companion ordering entry: " + line);
+                if (enabled.contains(name))
+                    companion.push_back(name);
+            }
+            std::vector<std::string> expected;
+            for (const auto &name : out.plugins) {
+                const auto lower = Lower(name);
+                const bool official =
+                    std::any_of(core.begin(), core.end(), [&](const auto *c) { return lower == Lower(c); });
+                if (!official || seen.contains(lower))
+                    expected.push_back(lower);
+            }
+            if (companion != expected)
+                throw std::runtime_error(
+                    "plugins.txt and loadorder.txt disagree, or companion ordering is incomplete");
+        }
         if (out.plugins.empty())
             throw std::runtime_error("No base or enabled plugins found");
         std::map<FormKey, Raw> records;
@@ -428,10 +448,9 @@ ScanResult ScanPlugins(const std::filesystem::path &dataDir, const std::filesyst
                     item.gravity = proj.gravity;
                     item.force = proj.force;
                     if (reason.empty() &&
-                        ((proj.projTypes & 64) == 0 || (proj.projFlags & 7) || proj.scripted ||
-                         !std::isfinite(proj.force) || proj.force <= 0 || proj.force > 4 ||
-                         !std::isfinite(proj.gravity) || proj.gravity <= 0 || !std::isfinite(proj.speed) ||
-                         proj.speed <= 0))
+                        (proj.scripted || !OrdinaryArrowPhysics(static_cast<std::uint16_t>(proj.projTypes),
+                                                                static_cast<std::uint16_t>(proj.projFlags),
+                                                                proj.gravity, proj.speed, proj.force)))
                         reason = "Special or invalid projectile physics";
                 }
             } else if (reason.empty() && (!std::isfinite(r.speed) || r.speed <= 0))

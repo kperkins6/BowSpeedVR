@@ -40,6 +40,11 @@ int main(int argc, char** argv) {
         Check(Near(SelectUnpairedBowFactor(npc,.7f,.7f,1,.8,.8,true,true),.7f), "MGO NPC .8 preserves tested native getter over Ricochet .8");
         Check(Near(SelectUnpairedBowFactor(npc,.7f,.7f,1,.9,1,true,false),.63f), "NPC preset works without Ricochet");
         auto player=npc; player.player=true;
+        auto completePlayer=player;completePlayer.completeCatalog=true;
+        for (const char* reason:{"unknown bow", "unknown arrow", "explicit exclusion", "gravity exception"})
+            Check(SelectUnpairedBowFactor(completePlayer,.7f,1.3f,1.5,.8,.8,true,true)==.7f,reason);
+        auto completeNPC=npc;completeNPC.completeCatalog=true;
+        Check(Near(SelectUnpairedBowFactor(completeNPC,.7f,.7f,1.5,.8,.8,true,true),.7f),"Complete catalogue retains explicit NPC tuning");
         Check(Near(SelectUnpairedBowFactor(player,.7f,.7f,1,1,.8,true,true),.875f), "Unpaired eligible player bow compensates once");
         Check(Near(SelectUnpairedBowFactor(player,.7f,.7f,1.1,.8,.8,true,true),.9625f), "Independent player choice does not inherit NPC setting");
         for (int gate=0;gate<6;++gate) {

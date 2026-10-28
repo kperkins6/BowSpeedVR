@@ -121,6 +121,50 @@ int main() {
         Check(scan.equipment.at(CanonicalFormKey("Patch.esp", 0x801)).nativeSpeed == .875,
               "Weapon speed is read as a record rating");
         auto first = scan.fingerprint;
+        auto other = Header({"Skyrim.esm"});
+        Append(other, Bow(0x800, "Other override", .5f));
+        Save(data / "Other.esp", other);
+        {
+            std::ofstream f(root / "plugins.txt");
+            f << "*Skyrim.esm\n*Patch.esp\n*Other.esp\nDisabled.esp\n";
+        }
+        {
+            std::ofstream f(root / "loadorder.txt");
+            f << "Skyrim.esm\nOther.esp\nPatch.esp\n";
+        }
+        Check(!ScanPlugins(data, root / "plugins.txt", root / "loadorder.txt").complete,
+              "Conflicting ordering sources must block export");
+        {
+            std::ofstream f(root / "loadorder.txt");
+            f << "Skyrim.esm\nPatch.esp\nOther.esp\nDisabled.esp\n";
+        }
+        auto ordered = ScanPlugins(data, root / "plugins.txt", root / "loadorder.txt");
+        Check(ordered.complete && ordered.equipment.at(key).name == "Other override",
+              "Consistent order selects the actual last patch");
+        {
+            std::ofstream f(root / "loadorder.txt");
+            f << "Skyrim.esm\nOther.esp\n";
+        }
+        Check(!ScanPlugins(data, root / "plugins.txt", root / "loadorder.txt").complete,
+              "Incomplete companion ordering must not synthesize an order");
+        {
+            std::ofstream f(root / "loadorder.txt");
+            f << "Skyrim.esm\nPatch.esp\nPatch.esp\nOther.esp\n";
+        }
+        Check(!ScanPlugins(data, root / "plugins.txt", root / "loadorder.txt").complete,
+              "Duplicate ordering entries are rejected");
+        {
+            std::ofstream f(root / "loadorder.txt");
+            f << "Patch.esp\nOther.esp\n";
+        }
+        Check(ScanPlugins(data, root / "plugins.txt", root / "loadorder.txt").complete,
+              "Implicit official masters do not require companion entries");
+        Check(ScanPlugins(data, root / "plugins.txt", root / "no-order.txt").complete,
+              "Starred list supplies order when no companion file exists");
+        {
+            std::ofstream f(root / "plugins.txt");
+            f << "*Skyrim.esm\n*Patch.esp\nDisabled.esp\n";
+        }
         Append(patch, Bow(0x800, "Deleted bow", 1, 0x20));
         Save(data / "Patch.esp", patch);
         scan = ScanPlugins(data, root / "plugins.txt");

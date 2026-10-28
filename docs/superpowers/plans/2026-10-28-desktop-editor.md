@@ -73,9 +73,11 @@
 
 **Files:** scripts/package-editor.py, scripts/build-editor.ps1, docs/EDITOR.md, README.md, docs/BUILDING.md, THIRD-PARTY.md, tests/test_editor_package.py.
 
-- [ ] Package editor, matching runtime DLL/default INI, optional MGO preset, licenses and instructions. Verify ZIP contents and deterministic manifest with actual binaries.
-- [ ] Run all native tests, existing Python packaging tests, editor CLI/fixture acceptance and read-only current-profile scan. Record what requires MO2/FUS/in-game acceptance instead of claiming it passed.
-- [ ] Request one fresh whole-branch code review, fix material findings with regression tests, rerun affected/full checks, commit final changes locally. Keep installed game and public release untouched.
+- [x] Package editor, matching runtime DLL/default INI, optional MGO preset, licenses and instructions. Verify ZIP contents and deterministic manifest with actual binaries.
+- [x] Run all native tests, existing Python packaging tests, editor CLI/fixture acceptance and read-only current-profile scan. Record what requires MO2/FUS/in-game acceptance instead of claiming it passed.
+- [x] Request one fresh whole-branch code review, fix material findings with regression tests, rerun affected/full checks, commit final changes locally. Keep installed game and public release untouched.
+
+Final evidence: full runtime build and fresh editor-only build succeeded; 12 native test groups and 10 Python CLI/package tests passed. The final editor launched through MO2 and scanned 2012 active plugins / 1278 equipment records. Four material review findings have regression coverage. Local 1.1.0 editor/runtime archives were rebuilt after those fixes. FUS, a second real MO2 profile and in-game acceptance remain untested. The installed runtime and public release were not updated.
 
 ## Execution notes
 

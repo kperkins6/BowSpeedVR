@@ -32,11 +32,13 @@ inline std::optional<MatchedSettings> ResolveReferenceSettings(const Config& con
 }
 struct BowTuningEligibility {
     bool trusted{}, observation{}, actor{}, bow{}, physicalArrow{}, ordinaryForce{}, player{};
+    bool completeCatalog{};
 };
 inline float SelectUnpairedBowFactor(const BowTuningEligibility& shot,float original,float legacy,
     double playerMultiplier,double npcMultiplier,std::optional<double> externalSpeed,
     bool npcEnabled,bool compensate) noexcept {
     if (!shot.trusted || shot.observation) return original;
+    if (shot.completeCatalog && shot.player) return original;
     if (!shot.actor || !shot.bow || !shot.physicalArrow || !shot.ordinaryForce) return shot.player ? legacy : original;
     if (!shot.player && !npcEnabled) return original;
     if (!std::isfinite(original) || original<=0) return original;

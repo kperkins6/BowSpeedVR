@@ -150,7 +150,8 @@ void EditorModel::Import(const UserConfig &user, bool preset) {
     if (missing)
         notices.push_back(std::to_string(missing) +
                           " preset/configuration entries are absent from this active list");
-    needsReview = !preset && !user.fingerprint.empty() && user.fingerprint != scan.fingerprint;
+    needsReview =
+        needsReview || (!preset && !user.fingerprint.empty() && user.fingerprint != scan.fingerprint);
     settings = std::move(next);
 }
 Config EditorModel::BuildConfig() const {

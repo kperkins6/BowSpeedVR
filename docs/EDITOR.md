@@ -13,6 +13,8 @@ Keep MO2's virtual filesystem active while editing. Close the editor before chan
 
 The scanner supports current MO2 starred active-plugin lists. Ambiguous plain legacy lists are reported rather than assumed active. It resolves plugin masters, winning overrides, weapon templates and light-plugin references. Localized names fall back to EditorIDs when string-table names are unavailable.
 
+The starred list supplies non-core ordering; official base masters use their fixed engine order. If a companion `loadorder.txt` exists, it must agree and cover all other active plugins. Duplicated, incomplete or contradictory companion ordering blocks export instead of being merged into a guessed order.
+
 ## Tune equipment
 
 Use **Find** and the equipment filter to select an item. Known vanilla/DLC equipment starts with reviewed values. Ordinary bows derived from reviewed weapon templates can inherit a profile. Other equipment stays unchanged until assigned.
@@ -26,6 +28,8 @@ Global controls offer player pairing, a reference speed, player speed multiplier
 **Vanilla reference** anchors full-draw Long Bow + Iron at 2520 game units/s. Tuned uses 5000 by default; a custom reference can be 1000–10000. These are game units, not FPS. A record scan cannot measure every runtime modifier from other SKSE plugins; no automatic claim of matching the list's observed launch speed is made.
 
 Select an enabled bow and arrow in the combination preview and vary draw percentage. Launch speed, relative momentum and physical-impact factor come from the same C++ model used by the runtime. Cap indicators show whether shaft capacity or the speed ceiling removed energy. Impact preview assumes incoming speed equals launch speed; it does not predict cart movement or health damage. Impact strength is 0–2, with a final factor bounded to 0–1.55.
+
+With a complete editor catalogue, unassigned, excluded and gravity-exception player shots retain their installed native flight, including when the player multiplier or Ricochet compensation is enabled. Optional NPC global tuning is independent.
 
 ## Optional MGO preset
 
@@ -43,6 +47,8 @@ Importing settings made from a different scan requires reviewing the equipment a
 
 User settings are separate from supplied presets and the base INI. A complete editor overlay registers its explicit equipment catalogue and suppresses older per-bow/ammo modifiers to prevent stacking. Without a user overlay, existing INI behavior remains available. A malformed overlay is rejected as a whole and the base configuration remains active; inspect `BowSpeedVR.log` for errors.
 
+An outstanding changed-scan review stays pending across additional imports until explicitly accepted. The runtime rechecks native projectile type, hitscan/explosion flags, speed, gravity and force at registration and launch. VMAD/script detection is performed by the editor's record scan, not by a new runtime VM inspection hook. Rescan after changing equipment mods; script attachments added after export cannot currently be identified independently by the runtime.
+
 To remove editor settings, disable their separate settings mod. To remove all BowSpeedVR behavior, disable the runtime mod as well. No ESP patch is generated.
 
 ## Diagnostics and testing
@@ -54,5 +60,7 @@ BowSpeedVREditor.exe --game-dir "C:\Games\SkyrimVR" --profile-dir "C:\MO2\profil
 ```
 
 Launch that command through MO2 for its modded Data view. Other diagnostic options include `--validate-overlay FILE`, `--runtime-version DLL`, `--export-zip FILE`, `--export-dir FOLDER`, `--import FILE`, `--preset FILE`, and `--accept-scan` after reviewing a changed list. Reports are local files; nothing is uploaded.
+
+Use `--import`, `--preset` and `--accept-scan` with a headless report/export command. For the desktop interface, use its Import and preset buttons; those diagnostic switches are not applied to GUI startup.
 
 Active-session discovery was exercised against the local MGO setup. Synthetic fixtures cover override identity, disabled plugins, deletion, compressed/extended records, template cycles, light-plugin references, configuration round trips and source-file preservation. FUS remains a target for user acceptance testing; this is not a claim that every FUS profile or native-plugin combination has been tested. In-game flight, impacts and optional inventory-weight acceptance still require VR playtesting.

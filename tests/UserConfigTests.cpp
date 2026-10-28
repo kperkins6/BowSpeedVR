@@ -1,5 +1,6 @@
 #include "BowSpeed/Config.h"
 #include "BowSpeed/InventoryWeight.h"
+#include "BowSpeed/ProjectilePolicy.h"
 #include "BowSpeed/UserConfig.h"
 #include "Check.h"
 #include <iostream>
@@ -55,6 +56,17 @@ int main() {
         Check(!ComputeMatchedImpactRatio(1, 5000, -1), "Invalid strength rejected");
         Check(ResolvePhysicsCatalog(ParseConfig("")).bows.contains(CanonicalFormKey("Skyrim.esm", 0x3B562)),
               "No overlay preserves standalone default catalogue");
+        Check(OrdinaryArrowPhysics(64, 0, 1, 3600, 1), "Ordinary native arrow is eligible");
+        for (unsigned flag : {1u, 2u, 4u})
+            Check(!OrdinaryArrowPhysics(64, static_cast<std::uint16_t>(flag), 1, 3600, 1),
+                  "Hitscan/explosion/alternate explosion must be excluded at runtime");
+        for (double invalidPhysics :
+             {0., -1., std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN()}) {
+            Check(!OrdinaryArrowPhysics(64, 0, invalidPhysics, 3600, 1),
+                  "Invalid native gravity is excluded");
+            Check(!OrdinaryArrowPhysics(64, 0, 1, invalidPhysics, 1), "Invalid native speed is excluded");
+        }
+        Check(!OrdinaryArrowPhysics(65, 0, 1, 3600, 1), "Mixed missile/arrow projectile types are excluded");
         std::cout << "User overlay and generic catalogue tests passed\n";
         return 0;
     } catch (const std::exception &e) {

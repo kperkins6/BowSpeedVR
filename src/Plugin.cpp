@@ -6,6 +6,7 @@
 #include "BowSpeed/InventoryWeight.h"
 #include "BowSpeed/InventoryWeightHook.h"
 #include "BowSpeed/UserConfig.h"
+#include "BowSpeed/ProjectilePolicy.h"
 #include <fstream>
 
 namespace {
@@ -86,8 +87,8 @@ void DataLoaded(SKSE::MessagingInterface::Message* message) {
             auto* ammo=data->LookupForm<RE::TESAmmo>(key.localID,key.plugin);
             if (!ammo || ammo->IsBolt() || !ammo->GetPlayable()) continue;
             const auto* projectile=ammo->GetRuntimeData().data.projectile;
-            if (!projectile || !projectile->data.types.all(RE::BGSProjectileData::Type::kArrow) ||
-                !std::isfinite(projectile->data.force) || projectile->data.force<=0 || projectile->data.force>4) continue;
+            if (!projectile || !BowSpeed::OrdinaryArrowPhysics(projectile->data.types.underlying(),
+                projectile->data.flags.underlying(),projectile->data.gravity,projectile->data.speed,projectile->data.force)) continue;
             if (profile.gravityException) spdlog::warn("Pairing gravity exception: {} remains native",BowSpeed::FormatFormKey(key));
             profiles.arrows.emplace(ammo->GetFormID(),profile);
         }
