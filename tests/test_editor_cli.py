@@ -73,5 +73,23 @@ class EditorCLI(unittest.TestCase):
             run = subprocess.run([str(EXE), '--game-dir', str(root), '--profile-dir', str(root), '--scan-report', str(root / 'scan.json')], capture_output=True)
             self.assertNotEqual(run.returncode, 0)
 
+    def test_output_paths_cannot_overwrite_source_plugins(self):
+        with tempfile.TemporaryDirectory(prefix='bowspeed-cli-') as tmp:
+            root = pathlib.Path(tmp)
+            game = root / 'game'
+            game.mkdir()
+            fixture(game)
+            source = game / 'Data/Skyrim.esm'
+            original = source.read_bytes()
+            args = [str(EXE), '--game-dir', str(game), '--profile-dir', str(game)]
+            report = subprocess.run(args + ['--scan-report', str(source)], capture_output=True)
+            self.assertNotEqual(report.returncode, 0, 'Report path must not overwrite an ESM')
+            self.assertEqual(source.read_bytes(), original)
+            foreign = root / 'OtherMod.esp'
+            foreign.write_bytes(b'preserve this plugin')
+            exported = subprocess.run(args + ['--export-zip', str(foreign)], capture_output=True)
+            self.assertNotEqual(exported.returncode, 0, 'ZIP export must require a ZIP destination')
+            self.assertEqual(foreign.read_bytes(), b'preserve this plugin')
+
 if __name__ == '__main__':
     unittest.main()

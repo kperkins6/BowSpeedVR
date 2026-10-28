@@ -79,8 +79,12 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
                 return 0;
             } else if (a == L"--runtime-version") {
                 auto version = ReadRuntimeVersion(value());
-                if (!version) { Output("Unverified runtime version\n", true); return 2; }
-                Output(std::to_string(version->major)+"."+std::to_string(version->minor)+"."+std::to_string(version->patch)+"\n");
+                if (!version) {
+                    Output("Unverified runtime version\n", true);
+                    return 2;
+                }
+                Output(std::to_string(version->major) + "." + std::to_string(version->minor) + "." +
+                       std::to_string(version->patch) + "\n");
                 return version->compatible() ? 0 : 2;
             } else if (a == L"--help") {
                 Output("BowSpeedVREditor --game-dir PATH [--profile-dir PATH] [--scan-report FILE|-] "
@@ -98,12 +102,8 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
             auto text = ScanReport(scan);
             if (report == L"-")
                 Output(text);
-            else {
-                std::ofstream f(report, std::ios::binary);
-                f << text;
-                if (!f)
-                    throw std::runtime_error("Cannot write scan report");
-            }
+            else
+                WriteScanReport(scan, report);
         }
         if (!scan.complete) {
             for (auto &error : scan.errors)

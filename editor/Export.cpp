@@ -7,6 +7,13 @@
 #endif
 namespace BowSpeed::Editor {
 namespace {
+bool Extension(const std::filesystem::path &path, std::string expected) {
+    auto ext = path.extension().string();
+    for (auto &c : ext)
+        if (c >= 'A' && c <= 'Z')
+            c += ('a' - 'A');
+    return ext == expected;
+}
 std::uint32_t CRC(std::string_view s) {
     std::uint32_t crc = ~0u;
     for (unsigned char c : s) {
@@ -134,6 +141,8 @@ void ExportSettings(const EditorModel &model, const std::filesystem::path &desti
         "scanned MO2 profile. Let BowSpeedVR.user.ini win file conflicts and restart Skyrim VR.\r\nThe "
         "settings mod affects every profile where enabled. It does not modify source ESPs or other INIs.\r\n";
     if (zip) {
+        if (!Extension(destination, ".zip"))
+            throw std::runtime_error("Settings archive destination must end in .zip");
         AtomicWrite(destination, Zip({{"SKSE/Plugins/BowSpeedVR.user.ini", overlay},
                                       {"BowSpeedVR/Settings-README.txt", readme}}));
         return;
@@ -142,10 +151,39 @@ void ExportSettings(const EditorModel &model, const std::filesystem::path &desti
         std::filesystem::exists(destination / "SKSE/Plugins/BowSpeedVR.ini"))
         throw std::runtime_error(
             "Select a dedicated settings mod, separate from the runtime or supplied configuration patch");
+    const auto marker = destination / ".BowSpeedVREditor-output";
+    if (std::filesystem::exists(marker)) {
+        if (ReadText(marker, 128) != "BowSpeedVR settings output\n")
+            throw std::runtime_error("Unrecognized output-folder marker");
+    } else if (std::filesystem::exists(destination)) {
+        for (const auto &entry : std::filesystem::directory_iterator(destination)) {
+            auto name = entry.path().filename().wstring();
+            for (auto &c : name)
+                if (c >= L'A' && c <= L'Z')
+                    c += L'a' - L'A';
+            if (name != L"meta.ini")
+                throw std::runtime_error(
+                    "Use an empty settings-mod folder or one previously exported by this editor");
+        }
+    }
     auto file = destination / "SKSE/Plugins/BowSpeedVR.user.ini";
-    if (!Inside(file, destination))
-        throw std::runtime_error("Output path leaves selected settings mod");
+    const auto readmeFile = destination / "BowSpeedVR/Settings-README.txt";
+    for (const auto &target : {file, readmeFile, marker}) {
+        auto backup = target;
+        backup += L".bak";
+        if (!Inside(target, destination) || !Inside(backup, destination))
+            throw std::runtime_error("Output path leaves selected settings mod");
+    }
     AtomicWrite(file, overlay);
-    AtomicWrite(destination / "BowSpeedVR/Settings-README.txt", readme);
+    AtomicWrite(readmeFile, readme);
+    if (!std::filesystem::exists(marker))
+        AtomicWrite(marker, "BowSpeedVR settings output\n");
+}
+void WriteScanReport(const ScanResult &scan, const std::filesystem::path &destination) {
+    if (!Extension(destination, ".json"))
+        throw std::runtime_error("Scan report destination must end in .json");
+    if (!scan.dataDir.empty() && Inside(destination, scan.dataDir.parent_path()))
+        throw std::runtime_error("Save reports outside the game directory");
+    AtomicWrite(destination, ScanReport(scan));
 }
 } // namespace BowSpeed::Editor

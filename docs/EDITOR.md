@@ -37,7 +37,7 @@ The editor never writes Ricochet's configuration. **Compensate Ricochet speed** 
 
 **Export settings ZIP** creates a separate, installable settings mod. Install it in the same MO2 profile, enable it, and let its `SKSE/Plugins/BowSpeedVR.user.ini` win conflicts. Restart Skyrim VR for changes to take effect. The editor reports whether the installed runtime supports this overlay; it needs **1.1.0 or newer**. It can export ahead of a runtime upgrade, but the older DLL cannot apply those settings.
 
-Alternatively, **Export folder** writes to a dedicated physical settings-mod folder you select. The editor rejects the game directory and base-runtime/configuration folders, backs up an existing overlay as `.bak`, and does not delete other files. Do not select a source mod's folder as the output. Use a separate settings mod for each profile when tuning differs; any shared mod affects every profile where enabled.
+Alternatively, **Export folder** writes to a dedicated physical settings-mod folder you select. Use an empty folder on the first export (MO2's `meta.ini` is allowed). The editor marks its output folder for repeat exports, rejects existing source-mod folders and the game directory, backs up an existing overlay as `.bak`, and does not delete other files. Use a separate settings mod for each profile when tuning differs; any shared mod affects every profile where enabled. Archive exports require a `.zip` destination; reports require a `.json` destination outside the game directory.
 
 Importing settings made from a different scan requires reviewing the equipment and clicking **Accept current scan**. A changed active file set detected before export requires a fresh session. Missing identities after plugin renaming or form compaction are reported.
 

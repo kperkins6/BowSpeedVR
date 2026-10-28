@@ -161,8 +161,9 @@ Config EditorModel::BuildConfig() const {
     c.excludedForms.clear();
     for (const auto &[key, i] : items) {
         if (!i.enabled) {
-            if (i.gravityException && !i.explicitlyExcluded && i.equipment.ordinary && i.profile!="Unassigned") {
-                c.registeredArrows[key]={i.mass,i.capacity,true};
+            if (i.gravityException && !i.explicitlyExcluded && i.equipment.ordinary &&
+                i.profile != "Unassigned") {
+                c.registeredArrows[key] = {i.mass, i.capacity, true};
                 continue;
             }
             c.excludedForms.insert(key);

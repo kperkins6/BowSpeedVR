@@ -579,8 +579,7 @@ struct Window {
           << std::setprecision(3) << L"Relative momentum: " << shot->momentumRatio
           << L"\nPhysical-impact factor: " << shot->forceRatio << L"x"
           << (shot->capacityLimited ? L"   [shaft cap]" : L"")
-          << (shot->speedLimited ? L"   [speed cap]" : L"")
-          << L"\nImpact preview assumes launch speed.";
+          << (shot->speedLimited ? L"   [speed cap]" : L"") << L"\nImpact preview assumes launch speed.";
         Text(PreviewOutput, s.str());
     }
     void ImportFile(const std::filesystem::path &file, bool preset) {

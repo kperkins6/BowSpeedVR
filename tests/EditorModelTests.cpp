@@ -28,9 +28,10 @@ int main() {
         auto shot = model.Preview(bow, arrow, 1);
         Check(shot && Near(static_cast<float>(shot->launchSpeed), 5000),
               "Shared default preview matches 5000 anchor");
-    model.settings.pairingEnabled = false;
-    Check(!model.Preview(bow, arrow, 1), "Disabled player physics does not show an active pairing preview");
-    model.settings.pairingEnabled = true;
+        model.settings.pairingEnabled = false;
+        Check(!model.Preview(bow, arrow, 1),
+              "Disabled player physics does not show an active pairing preview");
+        model.settings.pairingEnabled = true;
         shot = model.Preview(bow, arrow, .5);
         Check(shot && Near(static_cast<float>(shot->launchSpeed), 2500),
               "Partial draw uses shared energy calculation");
@@ -40,9 +41,9 @@ int main() {
         model.SetArrow(arrow, 2, 2);
         shot = model.Preview(custom, arrow, 1);
         Check(shot && shot->capacityLimited, "Capacity cap is exposed in preview");
-    model.Import(ParseUserConfig("[UserConfig]\nSchemaVersion=1\n[Pairing]\nImpactStrength=0.5\n"));
-    Check(model.items.at(arrow).mass==2 && model.items.at(custom).power==2,
-          "Importing partial global settings preserves edited equipment");
+        model.Import(ParseUserConfig("[UserConfig]\nSchemaVersion=1\n[Pairing]\nImpactStrength=0.5\n"));
+        Check(model.items.at(arrow).mass == 2 && model.items.at(custom).power == 2,
+              "Importing partial global settings preserves edited equipment");
         model.settings.pairingSettings.impactStrength = .5;
         shot = model.Preview(bow, arrow, 1);
         Check(shot && shot->forceRatio <= .775, "Preview applies bounded physical impact strength");
@@ -90,13 +91,44 @@ int main() {
             blocked = true;
         }
         Check(blocked, "Game Data cannot be an output mod");
+        model.scan.dataDir = root / "game/Data";
+        std::filesystem::create_directories(model.scan.dataDir);
+        std::filesystem::create_directories(root / "foreign-mod");
+        {
+            std::ofstream f(root / "foreign-mod/Other.esp");
+            f << "source plugin";
+        }
+        blocked = false;
+        try {
+            ExportSettings(model, root / "foreign-mod", false);
+        } catch (...) {
+            blocked = true;
+        }
+        Check(blocked && !std::filesystem::exists(root / "foreign-mod/SKSE"),
+              "An existing source mod cannot be reused as a settings output");
         Check(ParseUserConfig(MgoPreset()).valid, "Optional MGO preset is data accepted by runtime");
-    auto gravityScan=scan;
-    const auto gravityArrow=CanonicalFormKey("dis_heavy_legion.esp",0x898);
-    gravityScan.equipment[gravityArrow]={gravityArrow,ItemKind::Arrow,"Imperial Arrow","ImperialArrow","dis_heavy_legion.esp","",{},{},5000,.981,1,10,true,false};
-    EditorModel gravityModel(gravityScan,ParseConfig("[General]\nObserveOnly=false\n[Compatibility]\nMGOProfiles=true\n[Immersion]\nArrowInventoryWeight=true\n"));
-    Check(!gravityModel.items.at(gravityArrow).enabled && BuildInventoryWeightProfiles(gravityModel.BuildConfig()).contains(gravityArrow),
-          "Reviewed gravity exceptions retain optional inventory mass while flight stays native");
+        auto gravityScan = scan;
+        const auto gravityArrow = CanonicalFormKey("dis_heavy_legion.esp", 0x898);
+        gravityScan.equipment[gravityArrow] = {gravityArrow,
+                                               ItemKind::Arrow,
+                                               "Imperial Arrow",
+                                               "ImperialArrow",
+                                               "dis_heavy_legion.esp",
+                                               "",
+                                               {},
+                                               {},
+                                               5000,
+                                               .981,
+                                               1,
+                                               10,
+                                               true,
+                                               false};
+        EditorModel gravityModel(gravityScan,
+                                 ParseConfig("[General]\nObserveOnly=false\n[Compatibility]\nMGOProfiles="
+                                             "true\n[Immersion]\nArrowInventoryWeight=true\n"));
+        Check(!gravityModel.items.at(gravityArrow).enabled &&
+                  BuildInventoryWeightProfiles(gravityModel.BuildConfig()).contains(gravityArrow),
+              "Reviewed gravity exceptions retain optional inventory mass while flight stays native");
         Check(!RuntimeVersion{1, 0, 0}.compatible() && RuntimeVersion{1, 1, 0}.compatible(),
               "Old runtime is never marked overlay-compatible");
         std::filesystem::remove_all(root);
