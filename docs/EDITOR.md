@@ -17,7 +17,13 @@ The starred list supplies non-core ordering; official base masters use their fix
 
 ## Tune equipment
 
-Use **Find** and the equipment filter to select an item. Known vanilla/DLC equipment starts with reviewed values. Ordinary bows derived from reviewed weapon templates can inherit a profile. Other equipment stays unchanged until assigned.
+Use **Find** and the equipment filter to select an item. Known equipment starts with reviewed values. Unfamiliar ordinary equipment receives enabled, editable defaults, labeled **Inferred**. The Inferred filter collects these items; selecting one shows the inference method, confidence and reference equipment in the scrollable details box. Enter explicit numbers or assign an archetype to replace an estimate; disable pairing to exclude it.
+
+Inference uses a known bow template first, then an unambiguous material-keyword match to standard reference equipment, then a bounded damage curve. The curve uses the active list's winning base damage for fixed standard vanilla/DLC representatives; enchanted duplicates and inferred items do not train it. Equal-damage references are averaged and conflicting damage order receives a monotone fit. Estimates clamp to the observed anchors within Long Bow–Daedric Bow energy / Iron–Daedric arrow mass bounds. A lone reference supplies a labeled nearest fallback. Without usable template, material or positive finite damage evidence, an item remains unchanged.
+
+Bow and arrow damage curves infer a common relative tier independently. Bow energy is interpolated from 1 to approximately 2.041; matching arrow mass is `1.25 * energy - 0.25` (1 to approximately 2.301). At full draw with the default virtual bow mass, equally inferred tiers target the reference speed before shaft/speed caps. Shaft capacity is interpolated separately. Damage is a gameplay proxy, so these are starting points rather than measurements of real energy or mass; damage-derived values are labeled low confidence. Known profiles are not recalculated.
+
+Special/scripted equipment, crossbows, reviewed gravity exceptions and saved explicit exclusions stay excluded. Material and template matches are marked high confidence only in the sense of reusing known profile evidence; they still merit checking against unusual mod mechanics. Exported inference explanations are INI comments compatible with runtime 1.1.0 and survive reopening in this editor. Manual overrides clear the inference label. Existing complete settings exports retain their explicit selections when imported.
 
 Choose an archetype and click **Assign**, or enter explicit bow energy / arrow mass and shaft capacity values, check **Enable pairing**, and click **Apply item values**. Uncheck pairing and apply to leave that item out of the model. Crossbows, non-playable helpers, unresolved templates and special projectiles cannot be enrolled through the ordinary editor.
 

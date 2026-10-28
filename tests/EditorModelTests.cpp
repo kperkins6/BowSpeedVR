@@ -24,7 +24,7 @@ int main() {
             7,      true,          false};
         EditorModel model(scan);
         Check(model.items.size() == 3, "Discovered equipment appears in editor");
-        Check(!model.items.at(custom).enabled, "Unknown bow remains unchanged until assigned");
+        Check(model.items.at(custom).enabled, "Unknown ordinary bow receives a labeled default");
         auto shot = model.Preview(bow, arrow, 1);
         Check(shot && Near(static_cast<float>(shot->launchSpeed), 5000),
               "Shared default preview matches 5000 anchor");

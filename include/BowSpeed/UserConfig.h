@@ -13,6 +13,7 @@ struct UserConfig {
     std::map<std::string, std::string> globals;
     std::string fingerprint;
     std::vector<std::string> errors;
+    std::map<FormKey, std::string> inferenceNotes;
 };
 struct PhysicsCatalog {
     std::map<FormKey, ResolvedBowPhysics> bows;

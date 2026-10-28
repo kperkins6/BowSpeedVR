@@ -118,6 +118,18 @@ UserConfig ParseUserConfig(std::string_view text) {
     std::size_t lineno{};
     while (std::getline(input, line)) {
         ++lineno;
+        const auto comment = Trim(line);
+        constexpr std::string_view marker = ";@inferred ";
+        if (comment.starts_with(marker)) {
+            const auto tab = comment.find('\t', marker.size());
+            if (tab != std::string::npos) {
+                auto key = ParseFormKey(std::string_view(comment).substr(marker.size(), tab - marker.size()));
+                auto note = Trim(std::string_view(comment).substr(tab + 1));
+                if (key && !note.empty() && note.size() <= 512)
+                    out.inferenceNotes[*key] = std::move(note);
+            }
+            continue;
+        }
         auto t = Trim(std::string_view(line).substr(0, line.find_first_of(";#")));
         if (t.empty())
             continue;

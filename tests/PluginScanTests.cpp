@@ -46,9 +46,8 @@ Bytes Header(std::vector<std::string> masters = {}, unsigned flags = 0) {
         Append(d, Sub("MAST", Text(m.c_str())));
     return Record("TES4", 0, d, flags);
 }
-Bytes Bow(unsigned id, const char *name, float speed, unsigned flags = 0,
-          std::optional<unsigned> parent = {}, unsigned damage = 7,
-          std::vector<unsigned> keywords = {}) {
+Bytes Bow(unsigned id, const char *name, float speed, unsigned flags = 0, std::optional<unsigned> parent = {},
+          unsigned damage = 7, std::vector<unsigned> keywords = {}) {
     Bytes d = Sub("EDID", Text(name));
     Append(d, Sub("FULL", Text(name)));
     Bytes dn(100);
@@ -62,7 +61,8 @@ Bytes Bow(unsigned id, const char *name, float speed, unsigned flags = 0,
     if (!keywords.empty()) {
         Bytes ids, count;
         U32(count, static_cast<unsigned>(keywords.size()));
-        for (auto keyword : keywords) U32(ids, keyword);
+        for (auto keyword : keywords)
+            U32(ids, keyword);
         Append(d, Sub("KSIZ", count));
         Append(d, Sub("KWDA", ids));
     }

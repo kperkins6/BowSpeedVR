@@ -75,7 +75,7 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
                 AtomicWrite(file, MgoPreset());
                 return 0;
             } else if (a == L"--version") {
-                Output("BowSpeedVREditor 1.1.0\n");
+                Output("BowSpeedVREditor 1.1.1\n");
                 return 0;
             } else if (a == L"--runtime-version") {
                 auto version = ReadRuntimeVersion(value());

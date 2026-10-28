@@ -234,8 +234,8 @@ void ParseFile(const std::filesystem::path &path, File &file, std::map<FormKey, 
                     r.scripted = !One(subs, "VMAD").empty();
                     if (sig == "WEAP" || sig == "AMMO") {
                         auto ids = One(subs, "KWDA"), count = One(subs, "KSIZ");
-                        if (ids.size() % 4 || (!count.empty() &&
-                            (count.size() != 4 || U32(count, 0) != ids.size() / 4)))
+                        if (ids.size() % 4 ||
+                            (!count.empty() && (count.size() != 4 || U32(count, 0) != ids.size() / 4)))
                             throw std::runtime_error("Invalid equipment keyword array");
                         for (std::size_t i = 0; i < ids.size(); i += 4)
                             r.keywords.push_back(Reference(U32(ids, i), file, lights));
@@ -426,7 +426,8 @@ ScanResult ScanPlugins(const std::filesystem::path &dataDir, const std::filesyst
                 r.weaponType = p->second.weaponType;
                 r.speed = p->second.speed;
                 r.damage = p->second.damage;
-                if (r.keywords.empty()) r.keywords = p->second.keywords;
+                if (r.keywords.empty())
+                    r.keywords = p->second.keywords;
                 r.scripted = r.scripted || p->second.scripted;
                 r.hasDnam = p->second.hasDnam;
                 r.parent = p->second.parent;
@@ -437,9 +438,9 @@ ScanResult ScanPlugins(const std::filesystem::path &dataDir, const std::filesyst
                                                   : ItemKind::Bow;
             if (raw.sig == "WEAP" && r.weaponType != 7 && r.weaponType != 9 && reason.empty())
                 continue;
-            Equipment item{key,    type,       raw.name,       raw.edid,    raw.winner,
-                           reason, raw.parent, raw.projectile, r.speed,     0,
-                           0,      r.damage, false,          r.scripted};
+            Equipment item{key,    type,       raw.name,       raw.edid,  raw.winner,
+                           reason, raw.parent, raw.projectile, r.speed,   0,
+                           0,      r.damage,   false,          r.scripted};
             for (const auto &keyword : r.keywords) {
                 auto k = records.find(keyword);
                 if (k != records.end() && k->second.sig == "KYWD" && !(k->second.flags & 0x20) &&
@@ -447,8 +448,9 @@ ScanResult ScanPlugins(const std::filesystem::path &dataDir, const std::filesyst
                     item.materialKeywords.push_back(k->second.edid);
             }
             std::sort(item.materialKeywords.begin(), item.materialKeywords.end());
-            item.materialKeywords.erase(std::unique(item.materialKeywords.begin(), item.materialKeywords.end()),
-                                        item.materialKeywords.end());
+            item.materialKeywords.erase(
+                std::unique(item.materialKeywords.begin(), item.materialKeywords.end()),
+                item.materialKeywords.end());
             if (reason.empty() && (raw.flags & 4))
                 reason = "Non-playable equipment";
             if (reason.empty() && r.scripted)
@@ -519,7 +521,8 @@ std::string ScanReport(const ScanResult &scan) {
             s << ",\"damage\":" << item.damage;
         s << ",\"materialKeywords\":[";
         for (std::size_t i = 0; i < item.materialKeywords.size(); ++i) {
-            if (i) s << ',';
+            if (i)
+                s << ',';
             s << Json(item.materialKeywords[i]);
         }
         s << ']';

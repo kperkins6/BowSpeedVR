@@ -1,4 +1,5 @@
 #include "EditorModel.h"
+#include "Inference.h"
 #include "BowSpeed/PhysicsCatalog.h"
 #include "BowSpeed/Tuning.h"
 #include <cmath>
@@ -40,25 +41,23 @@ EditorModel::EditorModel(ScanResult s, Config c) : scan(std::move(s)), settings(
         }
         items.emplace(key, std::move(i));
     }
-    for (auto &[key, i] : items) {
-        if (!i.equipment.ordinary || i.equipment.kind != ItemKind::Bow || i.profile != "Unassigned")
+    std::size_t inferred = 0;
+    for (const auto &[key, p] : InferDefaults(scan, cat)) {
+        auto &i = items.at(key);
+        if (i.profile != "Unassigned" || i.explicitlyExcluded || settings.replaceCatalog)
             continue;
-        auto parent = i.equipment.weaponTemplate;
-        std::set<FormKey> seen;
-        while (parent && seen.insert(*parent).second) {
-            auto b = cat.bows.find(*parent);
-            if (b != cat.bows.end()) {
-                i.power = b->second.power;
-                i.profile = b->second.name + " (template)";
-                i.enabled = true;
-                break;
-            }
-            auto p = items.find(*parent);
-            if (p == items.end())
-                break;
-            parent = p->second.equipment.weaponTemplate;
-        }
+        i.power = p.power;
+        i.mass = p.mass;
+        i.capacity = p.capacity;
+        i.profile = "Inferred: " + p.method;
+        i.inferenceNote = p.note;
+        i.enabled = true;
+        ++inferred;
     }
+    if (inferred)
+        notices.push_back(
+            std::to_string(inferred) +
+            " inferred defaults enabled in this draft; filter Inferred to review or override them.");
 }
 void EditorModel::SetBow(const FormKey &k, double power) {
     Range(power, .1, 8);
@@ -69,6 +68,7 @@ void EditorModel::SetBow(const FormKey &k, double power) {
     i.power = power;
     i.explicitlyExcluded = false;
     i.profile = "Custom";
+    i.inferenceNote.clear();
     i.enabled = true;
 }
 void EditorModel::SetArrow(const FormKey &k, double mass, double capacity) {
@@ -82,6 +82,7 @@ void EditorModel::SetArrow(const FormKey &k, double mass, double capacity) {
     i.explicitlyExcluded = false;
     i.capacity = capacity;
     i.profile = "Custom";
+    i.inferenceNote.clear();
     i.enabled = true;
 }
 void EditorModel::SetEnabled(const FormKey &k, bool enable) {
@@ -124,7 +125,11 @@ void EditorModel::Import(const UserConfig &user, bool preset) {
         if (auto b = cat.bows.find(key); i.equipment.kind == ItemKind::Bow && b != cat.bows.end()) {
             i.power = b->second.power;
             i.explicitlyExcluded = false;
-            i.profile = preset ? "Preset" : "Imported";
+            if (user.values.registeredBows.contains(key)) {
+                auto note = user.inferenceNotes.find(key);
+                i.inferenceNote = note == user.inferenceNotes.end() ? "" : note->second;
+                i.profile = i.inferenceNote.empty() ? (preset ? "Preset" : "Imported") : "Inferred (saved)";
+            }
             i.enabled = i.equipment.ordinary;
         }
         if (auto a = cat.arrows.find(key); i.equipment.kind == ItemKind::Arrow && a != cat.arrows.end()) {
@@ -132,7 +137,11 @@ void EditorModel::Import(const UserConfig &user, bool preset) {
             i.explicitlyExcluded = false;
             i.capacity = a->second.capacity;
             i.gravityException = a->second.gravityException;
-            i.profile = preset ? "Preset" : "Imported";
+            if (user.values.registeredArrows.contains(key)) {
+                auto note = user.inferenceNotes.find(key);
+                i.inferenceNote = note == user.inferenceNotes.end() ? "" : note->second;
+                i.profile = i.inferenceNote.empty() ? (preset ? "Preset" : "Imported") : "Inferred (saved)";
+            }
             i.enabled = i.equipment.ordinary && !i.gravityException;
         }
         if (next.excludedForms.contains(key)) {
@@ -184,6 +193,16 @@ std::string EditorModel::Overlay() const {
     if (needsReview)
         throw std::runtime_error("Review and accept the changed active scan before exporting");
     auto text = SerializeUserConfig(BuildConfig(), scan.fingerprint);
+    for (const auto &[key, item] : items) {
+        if (item.inferenceNote.empty())
+            continue;
+        auto note = item.inferenceNote;
+        for (auto &c : note)
+            if (static_cast<unsigned char>(c) < 32)
+                c = ' ';
+        note.resize(std::min<std::size_t>(note.size(), 512));
+        text += ";@inferred " + FormatFormKey(key) + "\t" + note + "\n";
+    }
     auto parsed = ParseUserConfig(text);
     if (!parsed.valid)
         throw std::runtime_error(parsed.errors.front());

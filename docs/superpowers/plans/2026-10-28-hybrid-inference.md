@@ -33,10 +33,10 @@ Files: editor/Inference.h/.cpp, EditorModel.h/.cpp, DesktopWindow.cpp, include/B
 
 Interfaces: InferDefaults(ScanResult, PhysicsCatalog) -> map<FormKey, InferredDefaults> with power/mass/capacity, method and explanation; EditableItem.inferenceNote retains user-visible provenance. UserConfig.inferenceNotes carries optional comment metadata only.
 
-- [ ] Tests first: template/material precedence, damage midpoint and clamping, same-tier 1.0 speed, active-list damage scaling, ties/inversions, ambiguity and invalid evidence, safe exclusions, manual override/export/reimport and source-label persistence.
-- [ ] Implement bounded curves using canonical representative IDs, explicit high/low confidence explanations, enabled-by-default ordinary inference and safe override precedence. Keep curated anchors untouched.
-- [ ] Show inferred labels in the table/filter and explanations alongside numeric controls; include comment provenance in overlays and diagnostic model reporting.
-- [ ] Run full native/Python suite; commit.
+- [x] Tests first: template/material precedence, damage midpoint and clamping, same-tier 1.0 speed, active-list damage scaling, ties/inversions, ambiguity and invalid evidence, safe exclusions, manual override/export/reimport and source-label persistence.
+- [x] Implement bounded curves using canonical representative IDs, explicit high/low confidence explanations, enabled-by-default ordinary inference and safe override precedence. Keep curated anchors untouched.
+- [x] Show inferred labels in the table/filter and explanations alongside numeric controls; include comment provenance in exported diagnostic overlays.
+- [x] Run full native/Python suite; commit.
 
 ### Task 3: Acceptance and delivery
 

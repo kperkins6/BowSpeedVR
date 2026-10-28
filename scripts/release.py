@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-VERSION='1.1.0'
+VERSION='1.1.1'
 NPCS=[('0.8','Slower enemies — 0.8×'),('0.9','Slightly slower enemies — 0.9×'),('1.0','Default — 1.0×')]
 PLAYERS=[('slow','Slower — 0.8×',.8,'Tuned'),('gentle','Slightly slower — 0.9×',.9,'Tuned'),
          ('fast','Slightly faster — 1.1×',1.1,'Tuned'),('faster','Faster — 1.2×',1.2,'Tuned'),

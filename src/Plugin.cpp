@@ -117,7 +117,7 @@ SKSEPluginLoad(const SKSE::LoadInterface* skse) {
         spdlog::set_default_logger(std::move(logger));
         spdlog::set_pattern("[%H:%M:%S.%e] [%l] %v");
         spdlog::flush_on(spdlog::level::info);
-        spdlog::info("BowSpeedVR 1.1.0; SKSE runtime={} packed=0x{:08X}",skse->RuntimeVersion().string("."),skse->RuntimeVersion().pack());
+        spdlog::info("BowSpeedVR 1.1.1; SKSE runtime={} packed=0x{:08X}",skse->RuntimeVersion().string("."),skse->RuntimeVersion().pack());
         SKSE::Init(skse);
         const auto* messaging=SKSE::GetMessagingInterface();
         if (!messaging || !messaging->RegisterListener(DataLoaded)) return false;

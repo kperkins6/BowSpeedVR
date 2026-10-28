@@ -18,7 +18,7 @@ def sub(tag, data):
 def record(tag, fid, data, flags=0):
     return tag.encode() + struct.pack('<5I', len(data), flags, fid, 0, 44) + data
 
-def fixture(root):
+def fixture(root, unfamiliar=False):
     data = root / 'Data'
     data.mkdir()
     (root / 'SkyrimVR.exe').touch()  # target identity only; never executed
@@ -31,9 +31,13 @@ def fixture(root):
     struct.pack_into('<f', projectile, 52, 1)
     ammo = struct.pack('<IIfI', 0x3be11, 4, 8, 1)
     plugin = record('TES4', 0, b'')
-    plugin += record('WEAP', 0x3b562, sub('EDID', b'LongBow\0') + sub('DNAM', bow))
+    stats = struct.pack('<IfH', 0, 0, 7)
+    plugin += record('WEAP', 0x3b562, sub('EDID', b'LongBow\0') + sub('DNAM', bow) + sub('DATA', stats))
     plugin += record('PROJ', 0x3be11, sub('DATA', projectile))
     plugin += record('AMMO', 0x1397d, sub('EDID', b'IronArrow\0') + sub('DATA', ammo))
+    if unfamiliar:
+        plugin += record('WEAP', 0x800, sub('EDID', b'UnfamiliarBow\0') + sub('DNAM', bow) + sub('DATA', stats))
+        plugin += record('AMMO', 0x801, sub('EDID', b'UnfamiliarArrow\0') + sub('DATA', ammo))
     (data / 'Skyrim.esm').write_bytes(plugin)
     (root / 'plugins.txt').write_text('*Skyrim.esm\nDisabled.esp\n', encoding='utf-8')
 
@@ -72,6 +76,29 @@ class EditorCLI(unittest.TestCase):
             (root / 'SkyrimVR.exe').touch()
             run = subprocess.run([str(EXE), '--game-dir', str(root), '--profile-dir', str(root), '--scan-report', str(root / 'scan.json')], capture_output=True)
             self.assertNotEqual(run.returncode, 0)
+
+    def test_unfamiliar_defaults_export_enabled_and_keep_inference_notes(self):
+        with tempfile.TemporaryDirectory(prefix='bowspeed-inferred-') as tmp:
+            root = pathlib.Path(tmp)
+            game = root / 'game'
+            game.mkdir()
+            fixture(game, unfamiliar=True)
+            args = [str(EXE), '--game-dir', str(game), '--profile-dir', str(game)]
+            overlay_dir = root / 'settings'
+            run = subprocess.run(args + ['--export-dir', str(overlay_dir)], capture_output=True)
+            self.assertEqual(run.returncode, 0, run.stderr.decode(errors='replace'))
+            overlay = overlay_dir / 'SKSE/Plugins/BowSpeedVR.user.ini'
+            import configparser
+            settings = configparser.ConfigParser()
+            settings.read(overlay)
+            self.assertAlmostEqual(settings.getfloat('CatalogBow', 'skyrim.esm|0x000800'), 1)
+            self.assertAlmostEqual(float(settings.get('CatalogArrow', 'skyrim.esm|0x000801').split(',')[0]), 1)
+            self.assertIn(';@inferred skyrim.esm|0x000800', overlay.read_text())
+            # The real import/export path must preserve the explanation.
+            run = subprocess.run(args + ['--import', str(overlay), '--export-dir', str(root / 'again')], capture_output=True)
+            self.assertEqual(run.returncode, 0, run.stderr.decode(errors='replace'))
+            again = (root / 'again/SKSE/Plugins/BowSpeedVR.user.ini').read_text()
+            self.assertIn(';@inferred skyrim.esm|0x000800', again)
 
     def test_output_paths_cannot_overwrite_source_plugins(self):
         with tempfile.TemporaryDirectory(prefix='bowspeed-cli-') as tmp:

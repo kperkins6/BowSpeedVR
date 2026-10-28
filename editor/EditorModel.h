@@ -7,6 +7,7 @@ struct EditableItem {
     bool explicitlyExcluded = false;
     double power = 1, mass = 1, capacity = 1.8;
     std::string profile = "Unassigned";
+    std::string inferenceNote;
 };
 class EditorModel {
   public:

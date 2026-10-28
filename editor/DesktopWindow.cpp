@@ -171,7 +171,7 @@ struct Window {
         Add(FilterLabel, L"STATIC", L"Find");
         Add(Filter, L"EDIT", L"", ES_AUTOHSCROLL | WS_TABSTOP);
         Add(Kind, L"COMBOBOX", L"", CBS_DROPDOWNLIST | WS_TABSTOP);
-        for (auto s : {L"All equipment", L"Bows", L"Arrows", L"Needs assignment", L"Excluded"})
+        for (auto s : {L"All equipment", L"Bows", L"Arrows", L"Needs assignment", L"Excluded", L"Inferred"})
             SendMessageW(C(Kind), CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
         SendMessageW(C(Kind), CB_SETCURSEL, 0, 0);
         Add(List, WC_LISTVIEWW, L"", LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_TABSTOP);
@@ -192,7 +192,7 @@ struct Window {
             ListView_InsertColumn(C(List), col++, &c);
         }
         Add(ItemTitle, L"STATIC", L"Select equipment to tune");
-        Add(Identity, L"STATIC", L"", SS_LEFT);
+        Add(Identity, L"EDIT", L"", ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL | WS_VSCROLL | WS_TABSTOP);
         Add(ArchetypeLabel, L"STATIC", L"Use an archetype");
         Add(Archetype, L"COMBOBOX", L"", CBS_DROPDOWNLIST | WS_TABSTOP | WS_VSCROLL);
         Add(Assign, L"BUTTON", L"Assign", WS_TABSTOP);
@@ -472,7 +472,8 @@ struct Window {
         int kind = static_cast<int>(SendMessageW(C(Kind), CB_GETCURSEL, 0, 0));
         for (auto &[key, i] : model->items) {
             auto &e = i.equipment;
-            auto hay = Lower(Wide(e.name + " " + FormatFormKey(key) + " " + e.winningPlugin));
+            auto hay = Lower(Wide(e.name + " " + FormatFormKey(key) + " " + e.winningPlugin + " " +
+                                  i.profile + " " + i.inferenceNote));
             if (!query.empty() && hay.find(query) == hay.npos)
                 continue;
             if (kind == 1 && e.kind != ItemKind::Bow)
@@ -482,6 +483,8 @@ struct Window {
             if (kind == 3 && i.profile != "Unassigned")
                 continue;
             if (kind == 4 && e.ordinary && !i.gravityException)
+                continue;
+            if (kind == 5 && i.inferenceNote.empty())
                 continue;
             int n = static_cast<int>(rows.size());
             rows.push_back(key);
@@ -535,6 +538,8 @@ struct Window {
                       (i.gravityException           ? "Gravity exception; native flight"
                        : i.equipment.reason.empty() ? "Profile: " + i.profile
                                                     : i.equipment.reason);
+        if (!i.inferenceNote.empty())
+            detail += "\nInferred: " + i.inferenceNote;
         Text(Identity, Wide(detail));
         Text(Power, Num(i.power));
         Text(Mass, Num(i.mass));
