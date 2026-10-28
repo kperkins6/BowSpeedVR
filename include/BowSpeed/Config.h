@@ -2,6 +2,7 @@
 #include <compare>
 #include <cstdint>
 #include <map>
+#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -14,6 +15,7 @@ struct FormKey {
     std::uint32_t localID;
     auto operator<=>(const FormKey&) const = default;
 };
+struct RegisteredArrow { double mass{}, capacity{}; bool gravityException{}; };
 struct Config {
     bool enabled = true;
     bool observeOnly = true;
@@ -38,6 +40,9 @@ struct Config {
     std::map<FormKey, float> pairingAmmoMass;
     std::map<FormKey, float> pairingAmmoCapacity;
     std::vector<std::string> warnings;
+    std::map<FormKey,double> registeredBows;
+    std::map<FormKey,RegisteredArrow> registeredArrows;
+    std::set<FormKey> excludedForms;
 };
 Config ParseConfig(std::string_view ini);
 std::map<FormKey, AmmoClass> DefaultAmmoClasses();

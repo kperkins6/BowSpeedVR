@@ -5,6 +5,7 @@
 #include "BowSpeed/Tuning.h"
 #include "BowSpeed/InventoryWeight.h"
 #include "BowSpeed/InventoryWeightHook.h"
+#include "BowSpeed/UserConfig.h"
 #include <fstream>
 
 namespace {
@@ -19,6 +20,12 @@ void DataLoaded(SKSE::MessagingInterface::Message* message) {
     if (message->type != SKSE::MessagingInterface::kDataLoaded) return;
     const auto ini=std::filesystem::path("Data/SKSE/Plugins/BowSpeedVR.ini");
     auto config=BowSpeed::ParseConfig(ReadFile(ini));
+    const auto userPath=std::filesystem::path("Data/SKSE/Plugins/BowSpeedVR.user.ini");
+    if (std::filesystem::exists(userPath)) {
+        const auto user=BowSpeed::ParseUserConfig(ReadFile(userPath));
+        if (user.valid) {config=BowSpeed::ApplyUserConfig(config,user);spdlog::info("Desktop user overlay loaded; fingerprint={}",user.fingerprint);}
+        else for (const auto& error:user.errors) spdlog::error("Desktop overlay rejected atomically: {}",error);
+    }
     if (!std::filesystem::exists(ini)) spdlog::warn("Missing BowSpeedVR.ini; using built-in observation defaults");
     for (const auto& warning: config.warnings) spdlog::warn("{}",warning);
     if (!config.enabled) {spdlog::info("Disabled by configuration; no hook installed");return;}
@@ -63,31 +70,28 @@ void DataLoaded(SKSE::MessagingInterface::Message* message) {
         config.referencePreset==BowSpeed::ReferencePreset::Vanilla ? "Vanilla calibrated" : "Tuned",
         config.pairedPlayerSpeedMult,profiles.settings->referenceSpeed);
     if (config.pairingEnabled) {
-        for (const auto& binding:BowSpeed::DefaultBowPhysicsBindings()) {
-            if (!BowSpeed::BindingInScope(config.mgoProfiles,binding.plugin)) continue;
-            const auto* profile=BowSpeed::FindBowPhysicsProfile(binding.profile);
-            const auto* weapon=data->LookupForm<RE::TESObjectWEAP>(binding.localID,binding.plugin);
-            if (!profile || !weapon || !weapon->IsBow() || !BowSpeed::UsableRangedSource(true,weapon->GetSpeed())) continue;
-            const double power=BowSpeed::ResolvePairingOverride(config.pairingBowPower,binding.plugin,binding.localID,profile->power);
-            profiles.bows.emplace(weapon->GetFormID(),BowSpeed::ResolvedBowPhysics{std::string(profile->name),power});
+        const auto catalog=BowSpeed::ResolvePhysicsCatalog(config);
+        for (const auto& [key,profile]:catalog.bows) {
+            const auto* weapon=data->LookupForm<RE::TESObjectWEAP>(key.localID,key.plugin);
+            if (!weapon || !weapon->IsBow() || weapon->IsCrossbow() || !weapon->GetPlayable() ||
+                !BowSpeed::UsableRangedSource(true,weapon->GetSpeed())) continue;
+            profiles.bows.emplace(weapon->GetFormID(),profile);
         }
-        for (const auto& binding:BowSpeed::DefaultArrowPhysicsBindings()) {
-            if (!BowSpeed::BindingInScope(config.mgoProfiles,binding.plugin)) continue;
-            const auto* profile=BowSpeed::FindArrowPhysicsProfile(binding.profile);
-            auto* ammo=data->LookupForm<RE::TESAmmo>(binding.localID,binding.plugin);
-            if (binding.requiresGravityNormalization)
-                spdlog::warn("Pairing gravity exception: {}|0x{:06X} name={} profile={} stays legacy; player-isolated normalization unverified",binding.plugin,binding.localID,ammo ? ammo->GetName() : "unresolved",binding.profile);
-            if (!profile || !ammo || ammo->IsBolt()) continue;
-            const double mass=BowSpeed::ResolvePairingOverride(config.pairingAmmoMass,binding.plugin,binding.localID,profile->mass);
-            const double capacity=BowSpeed::ResolvePairingOverride(config.pairingAmmoCapacity,binding.plugin,binding.localID,profile->capacityQ);
-            profiles.arrows.emplace(ammo->GetFormID(),BowSpeed::ResolvedArrowPhysics{std::string(profile->name),mass,capacity,binding.requiresGravityNormalization});
+        for (const auto& [key,profile]:catalog.arrows) {
+            auto* ammo=data->LookupForm<RE::TESAmmo>(key.localID,key.plugin);
+            if (!ammo || ammo->IsBolt() || !ammo->GetPlayable()) continue;
+            const auto* projectile=ammo->GetRuntimeData().data.projectile;
+            if (!projectile || !projectile->data.types.all(RE::BGSProjectileData::Type::kArrow) ||
+                !std::isfinite(projectile->data.force) || projectile->data.force<=0 || projectile->data.force>4) continue;
+            if (profile.gravityException) spdlog::warn("Pairing gravity exception: {} remains native",BowSpeed::FormatFormKey(key));
+            profiles.arrows.emplace(ammo->GetFormID(),profile);
         }
         spdlog::info("Pairing resolved reviewed bows={} arrows={} MomentumImpact={}",profiles.bows.size(),profiles.arrows.size(),config.pairingMomentumImpact);
     }
     BowSpeed::InventoryWeightForms inventoryWeights;
     for (const auto& [key,weight]:BowSpeed::BuildInventoryWeightProfiles(config)) {
         auto* ammo=data->LookupForm<RE::TESAmmo>(key.localID,key.plugin);
-        if (!ammo || ammo->IsBolt()) continue;
+        if (!ammo || ammo->IsBolt() || !ammo->GetPlayable()) continue;
         inventoryWeights.emplace(ammo->GetFormID(),weight);
         spdlog::info("Inventory arrow=0x{:08X} name={} weightEach={}",ammo->GetFormID(),ammo->GetName(),weight);
     }
@@ -107,7 +111,7 @@ SKSEPluginLoad(const SKSE::LoadInterface* skse) {
         spdlog::set_default_logger(std::move(logger));
         spdlog::set_pattern("[%H:%M:%S.%e] [%l] %v");
         spdlog::flush_on(spdlog::level::info);
-        spdlog::info("BowSpeedVR 1.0.0; SKSE runtime={} packed=0x{:08X}",skse->RuntimeVersion().string("."),skse->RuntimeVersion().pack());
+        spdlog::info("BowSpeedVR 1.1.0; SKSE runtime={} packed=0x{:08X}",skse->RuntimeVersion().string("."),skse->RuntimeVersion().pack());
         SKSE::Init(skse);
         const auto* messaging=SKSE::GetMessagingInterface();
         if (!messaging || !messaging->RegisterListener(DataLoaded)) return false;

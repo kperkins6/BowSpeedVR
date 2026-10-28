@@ -100,6 +100,7 @@ Config ParseConfig(std::string_view ini) {
             else if (normalized=="playerspeedmult") { numericSetting=&result.pairedPlayerSpeedMult; minimum=.5; maximum=1.5; }
             else if (normalized=="virtualbowmass") { numericSetting=&result.pairingSettings.virtualBowMass; minimum=0; maximum=2; }
             else if (normalized=="maxspeedratio") { numericSetting=&result.pairingSettings.maxSpeedRatio; minimum=.5; maximum=1.5; }
+            else if (normalized=="impactstrength") { numericSetting=&result.pairingSettings.impactStrength; minimum=0; maximum=2; }
             else { warn("unknown Pairing setting"); continue; }
             const auto numberValue=PairingNumber(value,minimum,maximum);
             if (numberValue) *numericSetting=*numberValue;

@@ -15,7 +15,7 @@ double SelectMatchedImpactForce(const std::optional<LaunchSnapshot>& snapshot,do
     if (!trusted || (pairing && (!std::isfinite(incoming) || incoming<=0 || incoming>4))) return incoming;
     if (!pairing || !snapshot) return legacy;
     if (!snapshot->eligible || !snapshot->momentumImpact) return incoming;
-    const auto ratio=ComputeMatchedImpactRatio(snapshot->mass,impactSpeed);
+    const auto ratio=ComputeMatchedImpactRatio(snapshot->mass,impactSpeed,snapshot->settings ? snapshot->settings->impactStrength : 1.0);
     const auto normalized=ratio ? NormalizeMatchedForce(incoming,snapshot->baseForce,*ratio) : std::nullopt;
     return normalized && *normalized<=std::numeric_limits<float>::max() ? *normalized : incoming;
 }

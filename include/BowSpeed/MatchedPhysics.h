@@ -7,6 +7,7 @@ struct MatchedSettings {
     double virtualBowMass=0.25;
     double maxSpeedRatio=1.25;
     bool capacityLimits=true;
+    double impactStrength=1.0;
 };
 struct MatchedShot {
     double launchSpeed{}, momentumRatio{}, energyRatio{};
@@ -22,7 +23,7 @@ std::optional<MatchedShot> ComputeMatchedShot(
 // Momentum reference stays fixed at 5000; force is clamp(sqrt(momentum), .75, 1.55).
 // Arrow mass is positive and speed is nonnegative, both finite.
 std::optional<double> ComputeMatchedImpactRatio(double arrowMass,
-    double impactSpeed) noexcept;
+    double impactSpeed, double strength=1.0) noexcept;
 // Base/runtime are positive finite. Draw is in [0,1]. The sole zero denominator
 // fallback is a neutral factor of 1 when BOTH desired speed and draw are zero.
 // Other zero, overflowed or underflowed denominators/results return nullopt.

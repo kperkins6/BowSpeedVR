@@ -17,7 +17,7 @@ std::optional<MatchedShot> ComputeMatchedShot(const MatchedSettings& settings,
     double bowPower, double arrowMass, double capacityQ, double draw) noexcept {
     if (!Positive(settings.referenceSpeed) || !Nonnegative(settings.virtualBowMass) ||
         !Positive(settings.maxSpeedRatio) || !Positive(bowPower) || !Positive(arrowMass) ||
-        !Positive(capacityQ) || !ValidDraw(draw)) return std::nullopt;
+        !Positive(capacityQ) || !ValidDraw(draw) || !Nonnegative(settings.impactStrength) || settings.impactStrength>2) return std::nullopt;
 
     const double totalMass=arrowMass+settings.virtualBowMass;
     const double speedCapQ=totalMass*settings.maxSpeedRatio*settings.maxSpeedRatio;
@@ -38,16 +38,16 @@ std::optional<MatchedShot> ComputeMatchedShot(const MatchedSettings& settings,
 
     const bool removedEnergy=usedQ<requestedQ && !Close(usedQ,requestedQ);
     return MatchedShot{launchSpeed,momentumRatio,energyRatio,requestedQ,usedQ,
-        std::clamp(std::sqrt(momentumRatio),.75,1.55),
+        std::clamp(std::clamp(std::sqrt(momentumRatio),.75,1.55)*settings.impactStrength,0.0,1.55),
         removedEnergy && settings.capacityLimits && Close(usedQ,capacityQ),
         removedEnergy && Close(usedQ,speedCapQ)};
 }
 
-std::optional<double> ComputeMatchedImpactRatio(double arrowMass, double impactSpeed) noexcept {
-    if (!Positive(arrowMass) || !Nonnegative(impactSpeed)) return std::nullopt;
+std::optional<double> ComputeMatchedImpactRatio(double arrowMass, double impactSpeed, double strength) noexcept {
+    if (!Positive(arrowMass) || !Nonnegative(impactSpeed) || !Nonnegative(strength) || strength>2) return std::nullopt;
     const double momentum=arrowMass*(impactSpeed/ImpactReferenceSpeed);
     if (!Nonnegative(momentum)) return std::nullopt;
-    return std::clamp(std::sqrt(momentum),.75,1.55);
+    return std::clamp(std::clamp(std::sqrt(momentum),.75,1.55)*strength,0.0,1.55);
 }
 
 std::optional<double> MatchedGetterFactor(double desiredLaunchSpeed,

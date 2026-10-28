@@ -3,6 +3,7 @@
 #include "BowSpeed/MatchedRuntime.h"
 #include "BowSpeed/PhysicsCatalog.h"
 #include "BowSpeed/Tuning.h"
+#include "BowSpeed/UserConfig.h"
 #include <cmath>
 #include <optional>
 namespace BowSpeed {
@@ -14,13 +15,8 @@ inline std::optional<float> InventoryWeightFromMass(double mass) noexcept {
 inline std::map<FormKey,float> BuildInventoryWeightProfiles(const Config& config) {
     std::map<FormKey,float> result;
     if (!config.enabled || config.observeOnly || !config.arrowInventoryWeight) return result;
-    for (const auto& binding:DefaultArrowPhysicsBindings()) {
-        if (!BindingInScope(config.mgoProfiles,binding.plugin)) continue;
-        const auto* profile=FindArrowPhysicsProfile(binding.profile);
-        if (!profile) continue;
-        const double mass=ResolvePairingOverride(config.pairingAmmoMass,binding.plugin,binding.localID,profile->mass);
-        if (const auto weight=InventoryWeightFromMass(mass))
-            result.emplace(FormKey{std::string(binding.plugin),binding.localID},*weight);
+    for (const auto& [key,profile]:ResolvePhysicsCatalog(config).arrows) {
+        if (const auto weight=InventoryWeightFromMass(profile.mass)) result.emplace(key,*weight);
     }
     return result;
 }
