@@ -11,6 +11,7 @@ struct Equipment {
     std::optional<FormKey> weaponTemplate, projectile;
     double nativeSpeed{}, gravity{}, force{}, damage{};
     bool ordinary{}, scripted{};
+    std::vector<std::string> materialKeywords;
 };
 struct ScanResult {
     bool complete = false;

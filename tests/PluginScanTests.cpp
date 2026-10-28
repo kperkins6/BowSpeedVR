@@ -47,13 +47,25 @@ Bytes Header(std::vector<std::string> masters = {}, unsigned flags = 0) {
     return Record("TES4", 0, d, flags);
 }
 Bytes Bow(unsigned id, const char *name, float speed, unsigned flags = 0,
-          std::optional<unsigned> parent = {}) {
+          std::optional<unsigned> parent = {}, unsigned damage = 7,
+          std::vector<unsigned> keywords = {}) {
     Bytes d = Sub("EDID", Text(name));
     Append(d, Sub("FULL", Text(name)));
     Bytes dn(100);
     dn[0] = 7;
     Float(dn, 4, speed);
     Append(d, Sub("DNAM", dn));
+    Bytes stats(10);
+    stats[8] = static_cast<unsigned char>(damage);
+    stats[9] = static_cast<unsigned char>(damage >> 8);
+    Append(d, Sub("DATA", stats));
+    if (!keywords.empty()) {
+        Bytes ids, count;
+        U32(count, static_cast<unsigned>(keywords.size()));
+        for (auto keyword : keywords) U32(ids, keyword);
+        Append(d, Sub("KSIZ", count));
+        Append(d, Sub("KWDA", ids));
+    }
     if (parent) {
         Bytes ref;
         U32(ref, *parent);
@@ -96,10 +108,12 @@ int main() {
         std::filesystem::create_directories(root / "Data");
         auto data = root / "Data";
         auto base = Header();
-        Append(base, Bow(0x800, "Base bow", 1));
+        Append(base, Record("KYWD", 0x900, Sub("EDID", Text("WeapMaterialIron"))));
+        Append(base, Record("KYWD", 0x901, Sub("EDID", Text("WeapMaterialGlass"))));
+        Append(base, Bow(0x800, "Base bow", 1, 0, {}, 7, {0x900}));
         Save(data / "Skyrim.esm", base);
         auto patch = Header({"Skyrim.esm"});
-        Append(patch, Bow(0x800, "Overridden bow", .75f));
+        Append(patch, Bow(0x800, "Overridden bow", .75f, 0, {}, 12, {0x901}));
         Append(patch, Bow(0x01000801, "New bow", .875f));
         Save(data / "Patch.esp", patch);
         auto disabled = Header();
@@ -116,6 +130,9 @@ int main() {
         Check(scan.equipment.at(key).name == "Overridden bow", "Last enabled override wins");
         Check(scan.equipment.at(key).winningPlugin == "Patch.esp",
               "Origin identity remains separate from winning patch");
+        Check(scan.equipment.at(key).materialKeywords == std::vector<std::string>{"WeapMaterialGlass"},
+              "Winning keyword references resolve through the patch master table");
+        Check(scan.equipment.at(key).damage == 12, "Winning base damage is exposed for inference");
         Check(scan.equipment.at(CanonicalFormKey("Patch.esp", 0x801)).ordinary,
               "New physical bow discovered");
         Check(scan.equipment.at(CanonicalFormKey("Patch.esp", 0x801)).nativeSpeed == .875,
@@ -187,11 +204,23 @@ int main() {
                   scan.equipment.at(CanonicalFormKey("Light.esl", 0x822)).name == "Light override",
               "Light master references resolve independently of FE runtime slot");
         patch = Header({"Skyrim.esm"});
-        Append(patch, Bow(0x01000801, "Templated bow", .125f, 0, 0x800));
+        Append(patch, Bow(0x01000801, "Templated bow", .125f, 0, 0x800, 99));
         Save(data / "Patch.esp", patch);
         scan = ScanPlugins(data, root / "plugins.txt");
         Check(scan.complete && scan.equipment.at(CanonicalFormKey("Patch.esp", 0x801)).nativeSpeed == 1,
               "Template statistics override serialized child statistics");
+        Check(scan.equipment.at(CanonicalFormKey("Patch.esp", 0x801)).damage == 7 &&
+                  scan.equipment.at(CanonicalFormKey("Patch.esp", 0x801)).materialKeywords ==
+                      std::vector<std::string>{"WeapMaterialIron"},
+              "Inference uses resolved template damage and inherited material evidence");
+        auto malformed = Bow(0x01000802, "Malformed keywords", 1);
+        Bytes badPayload(malformed.begin() + 24, malformed.end());
+        Append(badPayload, Sub("KWDA", Bytes{1, 2, 3}));
+        auto badPatch = patch;
+        Append(badPatch, Record("WEAP", 0x01000802, badPayload));
+        Save(data / "Patch.esp", badPatch);
+        Check(!ScanPlugins(data, root / "plugins.txt").complete,
+              "Malformed keyword arrays fail closed instead of supplying false material evidence");
         patch = Header({"Skyrim.esm"});
         Append(patch, Bow(0x01000801, "Cycle one", 1, 0, 0x01000802));
         Append(patch, Bow(0x01000802, "Cycle two", 1, 0, 0x01000801));
