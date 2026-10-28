@@ -138,6 +138,36 @@ int main() {
         s = Fixture();
         s.equipment[newBow].scripted = true;
         Check(!InferDefaults(s, known).contains(newBow), "Scripted items cannot bypass inference safety");
+        s = Fixture();
+        const std::vector<FormKey> exceptions{CanonicalFormKey("elvenia armor.esp", 0x816),
+                                              CanonicalFormKey("dis_heavy_legion.esp", 0x898),
+                                              CanonicalFormKey("legacyofthedragonborn.esm", 0x236D52)};
+        for (const auto &key : exceptions) {
+            s.equipment[key] = Item(key, ItemKind::Arrow, 20);
+            s.equipment[key].gravity = .2;
+        }
+        EditorModel noPreset(s);
+        auto exported = noPreset.BuildConfig();
+        for (const auto &key : exceptions) {
+            Check(!noPreset.items.at(key).enabled && noPreset.items.at(key).gravityException,
+                  "Reviewed gravity exceptions remain excluded with MGO preset disabled");
+            Check(!exported.registeredArrows.contains(key) ||
+                      exported.registeredArrows.at(key).gravityException,
+                  "Default-scope export cannot turn a gravity exception into an ordinary registration");
+        }
+        s = Fixture();
+        const std::vector<FormKey> helpers{
+            CanonicalFormKey("crossbowreloadvr.esp", 0x800), CanonicalFormKey("spellwheelvr.esp", 0x807),
+            CanonicalFormKey("spellwheelvr.esp", 0x808), CanonicalFormKey("spellwheelvr.esp", 0x17D56)};
+        for (const auto &key : helpers)
+            s.equipment[key] = Item(key, ItemKind::Bow, 10);
+        EditorModel helpersModel(s);
+        for (const auto &key : helpers) {
+            Check(!helpersModel.items.at(key).enabled && !helpersModel.items.at(key).equipment.ordinary,
+                  "Reviewed VR interaction launchers never receive automatic archery tuning");
+            Check(!helpersModel.BuildConfig().registeredBows.contains(key),
+                  "VR helper exclusions survive runtime overlay export");
+        }
         std::cout << "Hybrid inference tests passed\n";
         return 0;
     } catch (const std::exception &e) {

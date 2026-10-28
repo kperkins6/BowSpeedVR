@@ -1,4 +1,5 @@
 #include "PluginScan.h"
+#include "EquipmentSafety.h"
 #include "BowSpeed/ProjectilePolicy.h"
 #include <algorithm>
 #include <array>
@@ -71,6 +72,7 @@ struct Raw {
     double speed{}, gravity{}, force{}, damage{};
     unsigned ammoFlags{}, projFlags{}, projTypes{};
     bool scripted{}, hasDnam{};
+    bool weaponNonPlayable{};
     std::vector<FormKey> keywords;
 };
 struct File {
@@ -247,6 +249,11 @@ void ParseFile(const std::filesystem::path &path, File &file, std::map<FormKey, 
                             r.hasDnam = true;
                             r.weaponType = d[0];
                             r.speed = Float(d, 4);
+                            // Serialized DNAM flags are at byte 12 (not the
+                            // in-memory CommonLib Data layout): xEdit TES5
+                            // wbDefinitionsTES5.pas WEAP/DNAM Flags, bit 7.
+                            if (d.size() >= 14)
+                                r.weaponNonPlayable = (U16(d, 12) & 0x80) != 0;
                         }
                         auto t = One(subs, "CNAM");
                         if (t.size() >= 4 && U32(t, 0))
@@ -429,6 +436,7 @@ ScanResult ScanPlugins(const std::filesystem::path &dataDir, const std::filesyst
                 if (r.keywords.empty())
                     r.keywords = p->second.keywords;
                 r.scripted = r.scripted || p->second.scripted;
+                r.weaponNonPlayable = r.weaponNonPlayable || p->second.weaponNonPlayable;
                 r.hasDnam = p->second.hasDnam;
                 r.parent = p->second.parent;
                 r.key = p->second.key;
@@ -451,7 +459,9 @@ ScanResult ScanPlugins(const std::filesystem::path &dataDir, const std::filesyst
             item.materialKeywords.erase(
                 std::unique(item.materialKeywords.begin(), item.materialKeywords.end()),
                 item.materialKeywords.end());
-            if (reason.empty() && (raw.flags & 4))
+            if (reason.empty() && ReviewedInteractionHelper(key))
+                reason = "Reviewed VR interaction helper";
+            if (reason.empty() && ((raw.flags & 4) || r.weaponNonPlayable))
                 reason = "Non-playable equipment";
             if (reason.empty() && r.scripted)
                 reason = "Scripted equipment requires a reviewed integration";

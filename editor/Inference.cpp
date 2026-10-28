@@ -1,4 +1,5 @@
 #include "Inference.h"
+#include "EquipmentSafety.h"
 #include "BowSpeed/PhysicsCatalog.h"
 #include <algorithm>
 #include <cmath>
@@ -128,7 +129,8 @@ std::map<FormKey, InferredDefaults> InferDefaults(const ScanResult &scan, const 
     Fit(bows);
     Fit(arrows);
     for (const auto &[key, item] : scan.equipment) {
-        if (!Safe(item) || known.bows.contains(key) || known.arrows.contains(key))
+        if (!Safe(item) || ReviewedInteractionHelper(key) || ReviewedGravityException(key) ||
+            known.bows.contains(key) || known.arrows.contains(key))
             continue;
         if (item.kind == ItemKind::Bow) {
             auto parent = item.weaponTemplate;

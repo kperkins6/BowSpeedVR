@@ -1,5 +1,6 @@
 #include "EditorModel.h"
 #include "Inference.h"
+#include "EquipmentSafety.h"
 #include "BowSpeed/PhysicsCatalog.h"
 #include "BowSpeed/Tuning.h"
 #include <cmath>
@@ -26,6 +27,14 @@ EditorModel::EditorModel(ScanResult s, Config c) : scan(std::move(s)), settings(
     for (const auto &[key, e] : scan.equipment) {
         EditableItem i;
         i.equipment = e;
+        if (ReviewedInteractionHelper(key)) {
+            i.equipment.ordinary = false;
+            i.equipment.reason = "Reviewed VR interaction helper";
+            i.explicitlyExcluded = true;
+            items.emplace(key, std::move(i));
+            continue;
+        }
+        i.gravityException = ReviewedGravityException(key);
         i.explicitlyExcluded = settings.excludedForms.contains(key);
         if (auto b = cat.bows.find(key); e.kind == ItemKind::Bow && b != cat.bows.end()) {
             i.power = b->second.power;
@@ -36,7 +45,7 @@ EditorModel::EditorModel(ScanResult s, Config c) : scan(std::move(s)), settings(
             i.mass = a->second.mass;
             i.capacity = a->second.capacity;
             i.profile = a->second.name;
-            i.gravityException = a->second.gravityException;
+            i.gravityException = a->second.gravityException || ReviewedGravityException(key);
             i.enabled = e.ordinary && !i.gravityException;
         }
         items.emplace(key, std::move(i));
@@ -136,7 +145,7 @@ void EditorModel::Import(const UserConfig &user, bool preset) {
             i.mass = a->second.mass;
             i.explicitlyExcluded = false;
             i.capacity = a->second.capacity;
-            i.gravityException = a->second.gravityException;
+            i.gravityException = a->second.gravityException || ReviewedGravityException(key);
             if (user.values.registeredArrows.contains(key)) {
                 auto note = user.inferenceNotes.find(key);
                 i.inferenceNote = note == user.inferenceNotes.end() ? "" : note->second;

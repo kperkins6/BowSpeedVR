@@ -47,12 +47,13 @@ Bytes Header(std::vector<std::string> masters = {}, unsigned flags = 0) {
     return Record("TES4", 0, d, flags);
 }
 Bytes Bow(unsigned id, const char *name, float speed, unsigned flags = 0, std::optional<unsigned> parent = {},
-          unsigned damage = 7, std::vector<unsigned> keywords = {}) {
+          unsigned damage = 7, std::vector<unsigned> keywords = {}, unsigned dataFlags = 0) {
     Bytes d = Sub("EDID", Text(name));
     Append(d, Sub("FULL", Text(name)));
     Bytes dn(100);
     dn[0] = 7;
     Float(dn, 4, speed);
+    dn[12] = static_cast<unsigned char>(dataFlags);
     Append(d, Sub("DNAM", dn));
     Bytes stats(10);
     stats[8] = static_cast<unsigned char>(damage);
@@ -270,6 +271,11 @@ int main() {
         Check(scan.complete && scan.equipment.at(CanonicalFormKey("Patch.esp", 0x803)).ordinary &&
                   scan.equipment.at(CanonicalFormKey("Patch.esp", 0x803)).nativeSpeed == 3600,
               "AMMO resolves its winning PROJ speed and arrow classification");
+        Append(patch, Bow(0x01000804, "Trap helper bow", 1, 0, {}, 20, {}, 0x80));
+        Save(data / "Patch.esp", patch);
+        scan = ScanPlugins(data, root / "plugins.txt");
+        Check(scan.complete && !scan.equipment.at(CanonicalFormKey("Patch.esp", 0x804)).ordinary,
+              "DNAM non-playable weapons are excluded even without the record-header flag");
         Check(!ScanPlugins(data, root / "absent.txt").complete,
               "Missing active list does not scan all installed files");
         Save(data / "Patch.esp", Bytes{'B', 'A', 'D'});
