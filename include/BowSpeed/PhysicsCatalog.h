@@ -14,10 +14,12 @@ struct ArrowPhysicsBinding {
     // Runtime must exclude this binding unless player-isolated normalization is verified.
     bool requiresGravityNormalization;
 };
+struct EquipmentExclusion { std::string_view plugin; std::uint32_t localID; std::string_view reason; };
 std::span<const BowPhysicsProfile> BowPhysicsProfiles() noexcept;
 std::span<const ArrowPhysicsProfile> ArrowPhysicsProfiles() noexcept;
 std::span<const BowPhysicsBinding> DefaultBowPhysicsBindings() noexcept;
 std::span<const ArrowPhysicsBinding> DefaultArrowPhysicsBindings() noexcept;
+std::span<const EquipmentExclusion> ReviewedEquipmentExclusions() noexcept;
 const BowPhysicsProfile* FindBowPhysicsProfile(std::string_view) noexcept;
 const ArrowPhysicsProfile* FindArrowPhysicsProfile(std::string_view) noexcept;
 }

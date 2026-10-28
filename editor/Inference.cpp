@@ -129,7 +129,7 @@ std::map<FormKey, InferredDefaults> InferDefaults(const ScanResult &scan, const 
     Fit(bows);
     Fit(arrows);
     for (const auto &[key, item] : scan.equipment) {
-        if (!Safe(item) || ReviewedInteractionHelper(key) || ReviewedGravityException(key) ||
+        if (!Safe(item) || !ReviewedExclusionReason(key).empty() || ReviewedGravityException(key) ||
             known.bows.contains(key) || known.arrows.contains(key))
             continue;
         if (item.kind == ItemKind::Bow) {

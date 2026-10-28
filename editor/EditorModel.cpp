@@ -27,9 +27,9 @@ EditorModel::EditorModel(ScanResult s, Config c) : scan(std::move(s)), settings(
     for (const auto &[key, e] : scan.equipment) {
         EditableItem i;
         i.equipment = e;
-        if (ReviewedInteractionHelper(key)) {
+        if (const auto reason = ReviewedExclusionReason(key); !reason.empty()) {
             i.equipment.ordinary = false;
-            i.equipment.reason = "Reviewed VR interaction helper";
+            i.equipment.reason = reason;
             i.explicitlyExcluded = true;
             items.emplace(key, std::move(i));
             continue;

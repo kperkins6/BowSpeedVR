@@ -42,8 +42,10 @@ Interfaces: InferDefaults(ScanResult, PhysicsCatalog) -> map<FormKey, InferredDe
 
 Files: docs/EDITOR.md, packaging/version metadata as needed; private workspace evidence.
 
-- [ ] Document inference limits and export workflow. Build/package actual binaries; obtain one independent final code review and fix material findings with regression tests.
-- [ ] Run full native/Python suite and active MGO scan; review inference distribution and sample mappings, verifying no excluded equipment becomes enabled.
-- [ ] Back up installed editor, update it in MO2, verify live runtime detection/scanning, and close it for playtesting. Live runtime tuning remains unchanged. Commit final source changes locally; no public push.
+- [x] Document inference limits and export workflow. Build/package actual binaries; obtain one independent final code review and fix material findings with regression tests.
+- [x] Run full native/Python suite and active MGO scan; review inference distribution and sample mappings, verifying no excluded equipment becomes enabled.
+- [x] Back up installed editor, update it in MO2, verify live runtime detection/scanning, and close it for playtesting. Live runtime tuning remains unchanged. Commit final source changes locally; no public push.
+
+Final evidence: native 13/13, Python 11/11, deterministic catalogue check, actual package validation, and read-only active MGO winning-record scan (2012 plugins, 1278 equipment). Five additional ordinary items receive inferred defaults after preserving the complete prior exclusion policy. The MO2-launched UI was inspected for enabled labels, Inferred filtering, details/controls and runtime compatibility; the final safety-table contents were rechecked via the scanner/model probe. MO2 and the editor are closed at completion. Installed editor matches final 1.1.1 package; runtime 1.1.0, base INI and Ricochet are unchanged. No inferred settings mod was automatically installed. Physical/gameplay acceptance and FUS testing remain user playtests.
 
 Self-review: scanner, model, import and UI interfaces are all covered. Deliberate new behavior is tested at the model/runtime-parser boundary; keyword extraction has real binary fixtures. Current native runtime already consumes numeric registrations, so inference requires no new in-game hook or schema version.

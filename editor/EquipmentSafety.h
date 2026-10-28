@@ -10,14 +10,11 @@ inline bool ReviewedGravityException(const FormKey &key) {
             return true;
     return false;
 }
-inline bool ReviewedInteractionHelper(const FormKey &key) {
+inline std::string_view ReviewedExclusionReason(const FormKey &key) {
     const auto canonical = CanonicalFormKey(key.plugin, key.localID);
-    // Existing reviewed exclusions in data/bow-records.csv. These launchers
-    // serve VR menus, lockpicking and reload mechanics, not player archery.
-    if (canonical.plugin == "crossbowreloadvr.esp")
-        return canonical.localID == 0x800;
-    if (canonical.plugin == "spellwheelvr.esp")
-        return canonical.localID == 0x807 || canonical.localID == 0x808 || canonical.localID == 0x17D56;
-    return false;
+    for (const auto &entry : ReviewedEquipmentExclusions())
+        if (entry.localID == canonical.localID && entry.plugin == canonical.plugin)
+            return entry.reason;
+    return {};
 }
 } // namespace BowSpeed::Editor

@@ -158,7 +158,8 @@ int main() {
         s = Fixture();
         const std::vector<FormKey> helpers{
             CanonicalFormKey("crossbowreloadvr.esp", 0x800), CanonicalFormKey("spellwheelvr.esp", 0x807),
-            CanonicalFormKey("spellwheelvr.esp", 0x808), CanonicalFormKey("spellwheelvr.esp", 0x17D56)};
+            CanonicalFormKey("spellwheelvr.esp", 0x808),     CanonicalFormKey("spellwheelvr.esp", 0x17D56),
+            CanonicalFormKey("vrik.esp", 0x12AB1),           CanonicalFormKey("weaponthrowvr.esp", 0xDA1)};
         for (const auto &key : helpers)
             s.equipment[key] = Item(key, ItemKind::Bow, 10);
         EditorModel helpersModel(s);
@@ -168,6 +169,10 @@ int main() {
             Check(!helpersModel.BuildConfig().registeredBows.contains(key),
                   "VR helper exclusions survive runtime overlay export");
         }
+        const auto developmentArrow = CanonicalFormKey("archeryv2.esp", 0x19E0);
+        s.equipment[developmentArrow] = Item(developmentArrow, ItemKind::Arrow, 15);
+        Check(!EditorModel(s).items.at(developmentArrow).enabled,
+              "Reviewed development arrows stay outside automatically inferred equipment");
         std::cout << "Hybrid inference tests passed\n";
         return 0;
     } catch (const std::exception &e) {

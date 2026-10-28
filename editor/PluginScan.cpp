@@ -459,8 +459,8 @@ ScanResult ScanPlugins(const std::filesystem::path &dataDir, const std::filesyst
             item.materialKeywords.erase(
                 std::unique(item.materialKeywords.begin(), item.materialKeywords.end()),
                 item.materialKeywords.end());
-            if (reason.empty() && ReviewedInteractionHelper(key))
-                reason = "Reviewed VR interaction helper";
+            if (const auto exclusion = ReviewedExclusionReason(key); reason.empty() && !exclusion.empty())
+                reason = exclusion;
             if (reason.empty() && ((raw.flags & 4) || r.weaponNonPlayable))
                 reason = "Non-playable equipment";
             if (reason.empty() && r.scripted)

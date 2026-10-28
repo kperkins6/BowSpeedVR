@@ -534,12 +534,12 @@ struct Window {
         selected = rows[n];
         auto &i = model->items.at(*selected);
         Text(ItemTitle, Wide(i.equipment.name));
-        auto detail = FormatFormKey(*selected) + "\n" +
+        auto detail = FormatFormKey(*selected) + "\r\n" +
                       (i.gravityException           ? "Gravity exception; native flight"
                        : i.equipment.reason.empty() ? "Profile: " + i.profile
                                                     : i.equipment.reason);
         if (!i.inferenceNote.empty())
-            detail += "\nInferred: " + i.inferenceNote;
+            detail += "\r\nInferred: " + i.inferenceNote;
         Text(Identity, Wide(detail));
         Text(Power, Num(i.power));
         Text(Mass, Num(i.mass));

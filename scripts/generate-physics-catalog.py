@@ -65,6 +65,10 @@ def generate():
     arrows = design["arrowProfiles"]
     bow_bindings = bindings(inventory("bow-records.csv"), bows, True)
     arrow_bindings = bindings(inventory("ammo-records.csv"), arrows, False)
+    excluded = {}
+    for row in inventory("bow-records.csv") + inventory("ammo-records.csv"):
+        if row["Policy"].startswith("Exclude:"):
+            excluded[form(row)] = row["Policy"]
     if (len(bows), len(arrows), len(bow_bindings), len(arrow_bindings)) != (34, 21, 588, 25):
         raise ValueError("Reviewed catalogue counts changed; review inventory policy before regenerating")
     if not GRAVITY_EXCEPTIONS <= {(p, i) for p, i, _ in arrow_bindings}:
@@ -90,6 +94,9 @@ def generate():
     for plugin, local, profile in arrow_bindings:
         gravity = "true" if (plugin, local) in GRAVITY_EXCEPTIONS else "false"
         lines.append(f"    {{{quote(plugin)}, 0x{local:06X}, {quote(profile)}, {gravity}}},")
+    lines += ["};", "constexpr EquipmentExclusion kExclusions[] = {"]
+    for (plugin, local), reason in sorted(excluded.items()):
+        lines.append(f"    {{{quote(plugin)}, 0x{local:06X}, {quote(reason)}}},")
     lines += ["};", """// ASCII folding is independent of the process locale and needs no allocation.
 constexpr char Fold(char c) noexcept { return c>='A' && c<='Z' ? static_cast<char>(c+('a'-'A')) : c; }
 bool EqualName(std::string_view a, std::string_view b) noexcept {
@@ -102,6 +109,7 @@ std::span<const BowPhysicsProfile> BowPhysicsProfiles() noexcept { return kBows;
 std::span<const ArrowPhysicsProfile> ArrowPhysicsProfiles() noexcept { return kArrows; }
 std::span<const BowPhysicsBinding> DefaultBowPhysicsBindings() noexcept { return kBowBindings; }
 std::span<const ArrowPhysicsBinding> DefaultArrowPhysicsBindings() noexcept { return kArrowBindings; }
+std::span<const EquipmentExclusion> ReviewedEquipmentExclusions() noexcept { return kExclusions; }
 const BowPhysicsProfile* FindBowPhysicsProfile(std::string_view name) noexcept {
     for (const auto& profile:kBows) if (EqualName(name,profile.name)) return &profile;
     return nullptr;
